@@ -4,6 +4,7 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
+
 def main():
     pygame.init()
     Clock = pygame.time.Clock()
@@ -38,6 +39,9 @@ def main():
             if asteroid.collide(player):
                 print("GAME OVER!")
                 exit()
+            for shot in shots:
+                if asteroid.collide(shot):
+                    asteroid.kill() # WIP
         screen.fill(0)
         for entity in drawable:
             entity.draw(screen)

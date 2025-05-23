@@ -12,3 +12,6 @@ class Asteroid(CircleShape):
     
     def update(self, dt):
         self.position += dt * self.velocity
+
+
+#add kill method
