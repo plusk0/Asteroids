@@ -41,7 +41,8 @@ def main():
                 exit()
             for shot in shots:
                 if asteroid.collide(shot):
-                    asteroid.kill() # WIP
+                    asteroid.hit() # WIP
+                    shot.kill()
         screen.fill(0)
         for entity in drawable:
             entity.draw(screen)
