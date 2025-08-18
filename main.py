@@ -23,10 +23,6 @@ def update_scale(x):
         constants.PLAYER_SPEED = constants.PLAYER_SPEED * constants.SCALE
         constants.SHOT_SPEED = constants.PLAYER_SPEED * constants.SCALE
 
-        SCREEN_HEIGHT = height
-        SCREEN_WIDTH = width
-    pass
-
 
 def main():
     pygame.init()
