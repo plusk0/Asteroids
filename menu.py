@@ -20,10 +20,10 @@ def show_upgrade_menu(screen):
     for i, upgrade in enumerate(upgrade_options):
         rect = pygame.Rect(start_x + i * (constants.SCREEN_WIDTH / 4), start_y, constants.SCREEN_WIDTH / 6, menu_height)
         rects.append(rect)
-        pygame.draw.rect(screen, (50, 50, 50), rect)
-        font = pygame.font.SysFont(None, 36 * int(constants.SCALE))
+        pygame.draw.rect(screen, (20, 180, 180), rect)
+        font = pygame.font.SysFont(None, 28 * int(constants.SCALE))
         text = font.render(upgrade, True, (255, 255, 255))
-        screen.blit(text, (rect.x + 40 * constants.SCALE, rect.y + 40 * constants.SCALE))
+        screen.blit(text, (rect.x + 20 * constants.SCALE, rect.y + menu_height / 2))
 
     pygame.display.flip()
     return upgrade_options, rects

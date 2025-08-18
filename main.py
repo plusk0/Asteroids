@@ -73,6 +73,7 @@ def main():
             for shot in shots:
                 if asteroid.collide(shot):
                     asteroid.kill()
+                    player.score += 100
                     if shot.piercing > 0:
                         shot.piercing -= 1
                     else:

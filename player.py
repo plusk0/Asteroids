@@ -22,10 +22,12 @@ class Player(CircleShape):
         self.shot_speed = constants.SHOT_SPEED
         self.current_cooldown = self.shot_cooldown
 
+        self.score = 0
+
         self.icon_shape = self._compute_icon_shape()
 
     def _compute_icon_shape(self):
-        small_radius = 15
+        small_radius = 15 * constants.SCALE
         forward = pygame.Vector2(0, 1)
         right = pygame.Vector2(0, 1).rotate(90) * small_radius / 1.5
         a = forward * small_radius
@@ -63,30 +65,39 @@ class Player(CircleShape):
             case "Piercing Bullets":
                 self.piercing += 1
             case "Bigger Bullets":
-                self.shot_radius = max(20, self.shot_radius + 5)
+                self.shot_radius = max((20 * constants.SCALE), self.shot_radius + (2 * constants.SCALE))
             case "Rapid Fire":
-                self.shot_cooldown = max(0.01, self.shot_cooldown - (0.1 * self.shot_cooldown))
+                self.shot_cooldown = max(0.01, self.shot_cooldown - (0.4 * self.shot_cooldown))
         return
 
     
-    
+
     def draw (self, screen):
+
+        if self.shield > 0:
+            pygame.draw.circle(screen, [20, 180, 180], self.position, self.radius * 1.5)
+
         pygame.draw.polygon(screen, [255,255,255], self.triangle(), 2)
 
         for i in range(self.health):
-            corner_pos = pygame.Vector2(20 + (20*i), 20 + (20*i))
+            corner_pos = pygame.Vector2((20 + (20*i)) * constants.SCALE, (20 + (20*i)) * constants.SCALE)
             points = [corner_pos + p for p in self.icon_shape]
             pygame.draw.polygon(screen, [255, 0, 0], points)
 
         for i in range(self.shield):
-            corner_pos = pygame.Vector2(20 + (20*i), 50 + (20*i))
+            corner_pos = pygame.Vector2(((20  + (20*i)) * constants.SCALE), ((50  + (20*i)) * constants.SCALE))
             points = [corner_pos + p for p in self.icon_shape]
-            pygame.draw.polygon(screen, [0, 50, 255], points)
+            pygame.draw.polygon(screen, [20, 180, 180], points)
+
+        font = pygame.font.SysFont(None, 28 * int(constants.SCALE))
+        text = font.render(f"Score {self.score}", True, (255, 255, 255))
+        screen.blit(text, (constants.SCREEN_WIDTH / 2, 100))
+
+        
 
 
     def update(self, dt):
         keys = pygame.key.get_pressed()
-        #print(self.rotation)
         if self.current_cooldown != 0:
             self.current_cooldown -= dt
         if self.current_cooldown < 0:
@@ -120,11 +131,10 @@ class Player(CircleShape):
         self.rotation += dt * constants.PLAYER_TURN_SPEED
 
     def move(self, dt):
+        print(self.position.y, constants.SCREEN_HEIGHT)
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
-        if (self.position.x + forward[0] * 5 < constants.SCREEN_WIDTH 
-            and self.position.x + (forward[1] * 5) > 0 
-            and self.position.y + forward[0] * 5 < constants.SCREEN_HEIGHT 
-            and self.position.y + (forward[1] * 5) > 0):
-
-            print(self.position)
+        if (self.position.x + forward[0] * constants.PLAYER_SPEED * dt < constants.SCREEN_WIDTH 
+            and self.position.x + (forward[0] * constants.PLAYER_SPEED * dt) > 0 
+            and self.position.y + (forward[1] * constants.PLAYER_SPEED * dt) < constants.SCREEN_HEIGHT - self.radius / 2 * constants.SCALE 
+            and self.position.y + (forward[1] * constants.PLAYER_SPEED * dt) > 0):
             self.position += forward * constants.PLAYER_SPEED * dt
