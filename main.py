@@ -4,6 +4,7 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
+from menu import *
 
 def main():
     pygame.init()
@@ -12,6 +13,7 @@ def main():
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
+    
 
     Player.containers = (updatable, drawable)
     Asteroid.containers = (asteroids, updatable, drawable)
@@ -27,9 +29,11 @@ def main():
     print("Screen width:", SCREEN_WIDTH)
     print("Screen height:", SCREEN_HEIGHT)
     
-
+    paused = False
     #Main Game Loop
-    while True:
+    level = player.level
+    while paused == False:
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
@@ -37,16 +41,31 @@ def main():
         updatable.update(dt)
         for asteroid in asteroids:
             if asteroid.collide(player):
-                print("GAME OVER!")
-                exit()
+                #print("GAME OVER!")
+                #exit()
+                pass
             for shot in shots:
                 if asteroid.collide(shot):
                     asteroid.kill() # WIP
+                    if shot.piercing > 0:
+                        shot.piercing -= 1
+                    else:
+                        shot.kill()
+                    player.gain_exp(10)
         screen.fill(0)
         for entity in drawable:
             entity.draw(screen)
+
+        if player.level > level:
+            level = player.level
+            paused = True
+            options, rects = show_upgrade_menu(screen)
+            handle_upgrade_selection(rects, options, player)
+            paused = False
+        
         
         dt = Clock.tick(60) / 1000
+        
         pygame.display.flip()
 
 if __name__ == "__main__":

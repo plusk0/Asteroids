@@ -2,13 +2,51 @@ from circleshape import *
 from constants import *
 from shot import Shot
 
+
 class Player(CircleShape):
     def __init__(self, x, y):
         self.rotation = 0
         self.x = x
         self.y = y
-        self.shot_cooldown = PLAYER_SHOOT_COOLDOWN
+        
         super().__init__(x, y, PLAYER_RADIUS)
+        self.exp = 0
+        self.level = 1
+        self.shield = PLAYER_SHIELD
+        self.health = PLAYER_HEALTH
+
+        self.shots = PLAYER_SHOT_NO
+        self.piercing = PLAYER_SHOT_PIERCE
+        self.shot_radius = SHOT_RADIUS
+        self.shot_cooldown = PLAYER_SHOOT_COOLDOWN
+
+
+    def gain_exp(self, amount):
+        self.exp += amount
+        if self.exp >= 10:
+            self.level_up()
+    
+    def level_up(self):
+        self.exp = 0
+        self.level += 1
+          # Assuming there's a level_up function in the menu module
+
+    def apply_upgrade(self, upgrade):
+        print(f"Upgrade applied: {upgrade} to player level {self.level}")
+        match upgrade:
+            case "Multi Shot":
+                self.shots += 1
+            case "Shield":
+                self.shield += 1
+            case "Extra Life":
+                self.health += 1
+            case "Piercing Bullets":
+                self.piercing += 1
+            case "Bigger Bullets":
+                self.shot_radius += 5
+            case "Rapid Fire":
+                self.shot_cooldown = max(0.1, self.shot_cooldown - 0.05)
+        return
 
     # in the player class
     def triangle(self):
@@ -41,9 +79,18 @@ class Player(CircleShape):
             self.shoot()
 
     def shoot(self):
-        bullet = Shot(self.position[0],self.position[1],SHOT_RADIUS)
-        bullet.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * SHOT_SPEED
-        self.shot_cooldown = PLAYER_SHOOT_COOLDOWN
+        if self.shots == 1:
+            bullet = Shot(self.position[0],self.position[1],self.shot_radius)
+            bullet.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * SHOT_SPEED
+            bullet.piercing = self.piercing
+            self.shot_cooldown = PLAYER_SHOOT_COOLDOWN
+        else:
+            for i in range(self.shots):
+                angle_offset = (i - (self.shots - 1) / 2) * 10
+                bullet = Shot(self.position[0], self.position[1], SHOT_RADIUS)
+                bullet.velocity = pygame.Vector2(0, 1).rotate(self.rotation + angle_offset) * SHOT_SPEED
+                bullet.piercing = self.piercing
+                self.shot_cooldown = PLAYER_SHOOT_COOLDOWN / self.shots
 
     def rotate(self, dt):
         self.rotation += dt * PLAYER_TURN_SPEED
