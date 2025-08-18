@@ -1,5 +1,5 @@
 import pygame
-from constants import *
+import constants
 from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
@@ -9,21 +9,21 @@ import random
 
 
 def show_upgrade_menu(screen):
-
-    upgrade_options = random.sample(UPGRADES, 3)
+    print(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
+    upgrade_options = random.sample(constants.UPGRADES, 3)
     rects = []
-    menu_width = 600
-    menu_height = 200
-    start_x = (SCREEN_WIDTH - menu_width) // 2
-    start_y = (SCREEN_HEIGHT - menu_height) // 2
+    menu_width = constants.SCREEN_WIDTH / 1.5
+    menu_height = constants.SCREEN_HEIGHT / 4
+    start_x = (constants.SCREEN_WIDTH - menu_width) // 2
+    start_y = (constants.SCREEN_HEIGHT - menu_height) // 2
 
     for i, upgrade in enumerate(upgrade_options):
-        rect = pygame.Rect(start_x + i * 200, start_y, 180, menu_height)
+        rect = pygame.Rect(start_x + i * (constants.SCREEN_WIDTH / 4), start_y, constants.SCREEN_WIDTH / 6, menu_height)
         rects.append(rect)
         pygame.draw.rect(screen, (50, 50, 50), rect)
-        font = pygame.font.SysFont(None, 36)
+        font = pygame.font.SysFont(None, 36 * int(constants.SCALE))
         text = font.render(upgrade, True, (255, 255, 255))
-        screen.blit(text, (rect.x + 20, rect.y + 80))
+        screen.blit(text, (rect.x + 40 * constants.SCALE, rect.y + 40 * constants.SCALE))
 
     pygame.display.flip()
     return upgrade_options, rects

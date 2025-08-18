@@ -1,5 +1,5 @@
 from circleshape import *
-from constants import *
+import constants
 import random
 
 
@@ -13,12 +13,15 @@ class Asteroid(CircleShape):
     
     def update(self, dt):
         self.position += dt * self.velocity
-        if self.position.y < 2 * -SCREEN_HEIGHT or self.position.y > 2 * SCREEN_HEIGHT or self.position.x < -2 * SCREEN_WIDTH or self.position.x > 2 * SCREEN_WIDTH:
+        if (self.position.y < 2 * -constants.SCREEN_HEIGHT or 
+        self.position.y > 2 * constants.SCREEN_HEIGHT or 
+        self.position.x < -2 * constants.SCREEN_WIDTH or 
+        self.position.x > 2 * constants.SCREEN_WIDTH):
             self.kill()
 
 
     def kill(self):
-        if self.radius <= ASTEROID_MIN_RADIUS:
+        if self.radius <= constants.ASTEROID_MIN_RADIUS:
             super().kill()
             return
         left = Asteroid(self.position.x, self.position.y, self.radius / 2)

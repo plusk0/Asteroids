@@ -1,5 +1,5 @@
 from circleshape import *
-from constants import *
+import constants
 from shot import Shot
 
 
@@ -9,16 +9,17 @@ class Player(CircleShape):
         self.x = x
         self.y = y
         
-        super().__init__(x, y, PLAYER_RADIUS)
+        super().__init__(x, y, constants.PLAYER_RADIUS)
         self.exp = 0
         self.level = 1
-        self.shield = PLAYER_SHIELD
-        self.health = PLAYER_HEALTH
+        self.shield = constants.PLAYER_SHIELD
+        self.health = constants.PLAYER_HEALTH
 
-        self.shots = PLAYER_SHOT_NO
-        self.piercing = PLAYER_SHOT_PIERCE
-        self.shot_radius = SHOT_RADIUS
-        self.shot_cooldown = PLAYER_SHOOT_COOLDOWN
+        self.shots = constants.PLAYER_SHOT_NO
+        self.piercing = constants.PLAYER_SHOT_PIERCE
+        self.shot_radius = constants.SHOT_RADIUS
+        self.shot_cooldown = constants.PLAYER_SHOOT_COOLDOWN
+        self.shot_speed = constants.SHOT_SPEED
         self.current_cooldown = self.shot_cooldown
 
         self.icon_shape = self._compute_icon_shape()
@@ -104,26 +105,26 @@ class Player(CircleShape):
     def shoot(self):
         if self.shots == 1:
             bullet = Shot(self.position[0],self.position[1],self.shot_radius)
-            bullet.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * SHOT_SPEED
+            bullet.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * self.shot_speed
             bullet.piercing = self.piercing
             self.current_cooldown = self.shot_cooldown
         else:
             for i in range(self.shots):
                 angle_offset = (i - (self.shots - 1) / 2) * 10
                 bullet = Shot(self.position[0], self.position[1], self.shot_radius)
-                bullet.velocity = pygame.Vector2(0, 1).rotate(self.rotation + angle_offset) * SHOT_SPEED
+                bullet.velocity = pygame.Vector2(0, 1).rotate(self.rotation + angle_offset) * self.shot_speed
                 bullet.piercing = self.piercing
-                self.current_cooldown = self.shot_cooldown * (self.shots / 2)
+                self.current_cooldown = self.shot_cooldown + 1 * (self.shots / 10)
 
     def rotate(self, dt):
-        self.rotation += dt * PLAYER_TURN_SPEED
+        self.rotation += dt * constants.PLAYER_TURN_SPEED
 
     def move(self, dt):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
-        if (self.position.x + forward[0] * 5 < SCREEN_WIDTH 
+        if (self.position.x + forward[0] * 5 < constants.SCREEN_WIDTH 
             and self.position.x + (forward[1] * 5) > 0 
-            and self.position.y + forward[0] * 5 < SCREEN_HEIGHT 
+            and self.position.y + forward[0] * 5 < constants.SCREEN_HEIGHT 
             and self.position.y + (forward[1] * 5) > 0):
 
             print(self.position)
-            self.position += forward * PLAYER_SPEED * dt
+            self.position += forward * constants.PLAYER_SPEED * dt

@@ -1,5 +1,5 @@
 from circleshape import *
-from constants import *
+import constants
 
 
 class Shot(CircleShape):
@@ -12,7 +12,10 @@ class Shot(CircleShape):
     
     def update(self, dt):
         self.position += dt * self.velocity
-        if self.position.y < -SCREEN_HEIGHT or self.position.y > SCREEN_HEIGHT or self.position.x < -SCREEN_WIDTH or self.position.x > SCREEN_WIDTH:
+        if (self.position.y < -constants.SCREEN_HEIGHT or 
+        self.position.y > constants.SCREEN_HEIGHT or 
+        self.position.x < -constants.SCREEN_WIDTH or 
+        self.position.x > constants.SCREEN_WIDTH):
             self.kill()
 
 
