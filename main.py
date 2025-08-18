@@ -9,11 +9,12 @@ from menu import *
 def main():
     pygame.init()
     Clock = pygame.time.Clock()
+
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
-    
+    paused = False
 
     Player.containers = (updatable, drawable)
     Asteroid.containers = (asteroids, updatable, drawable)
@@ -23,17 +24,15 @@ def main():
     dt = 0
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     player = Player(SCREEN_HEIGHT / 2, SCREEN_WIDTH / 2)
+    level = player.level
     asteroid_field = AsteroidField()
-    
+
+
     print("Starting Asteroids!")
     print("Screen width:", SCREEN_WIDTH)
     print("Screen height:", SCREEN_HEIGHT)
     
-    paused = False
-    #Main Game Loop
-    level = player.level
     while paused == False:
-        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
@@ -41,12 +40,19 @@ def main():
         updatable.update(dt)
         for asteroid in asteroids:
             if asteroid.collide(player):
-                #print("GAME OVER!")
-                #exit()
-                pass
+                if player.shield > 0:
+                    player.shield -= 1
+                    asteroid.kill()
+                elif player.health > 1:
+                    player.health -= 1
+                    asteroid.kill()
+                else:
+                    print("GAME OVER!")
+                    exit()
+
             for shot in shots:
                 if asteroid.collide(shot):
-                    asteroid.kill() # WIP
+                    asteroid.kill()
                     if shot.piercing > 0:
                         shot.piercing -= 1
                     else:
@@ -61,6 +67,7 @@ def main():
             paused = True
             options, rects = show_upgrade_menu(screen)
             handle_upgrade_selection(rects, options, player)
+            asteroid_field.modifier = 1 * (player.level / 10)
             paused = False
             Clock.tick()
         

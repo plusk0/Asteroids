@@ -9,16 +9,15 @@ import random
 
 
 def show_upgrade_menu(screen):
-    # Randomly pick 3 upgrades
-    options = random.sample(UPGRADES, 3)
+
+    upgrade_options = random.sample(UPGRADES, 3)
     rects = []
     menu_width = 600
     menu_height = 200
     start_x = (SCREEN_WIDTH - menu_width) // 2
     start_y = (SCREEN_HEIGHT - menu_height) // 2
 
-    # Draw 3 windows
-    for i, upgrade in enumerate(options):
+    for i, upgrade in enumerate(upgrade_options):
         rect = pygame.Rect(start_x + i * 200, start_y, 180, menu_height)
         rects.append(rect)
         pygame.draw.rect(screen, (50, 50, 50), rect)
@@ -27,15 +26,15 @@ def show_upgrade_menu(screen):
         screen.blit(text, (rect.x + 20, rect.y + 80))
 
     pygame.display.flip()
-    return options, rects
+    return upgrade_options, rects
 
-def handle_upgrade_selection(rects, options, player):
+def handle_upgrade_selection(rects, upgrade_options, player):
     while True:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for i, rect in enumerate(rects):
                     if rect.collidepoint(event.pos):
-                        player.apply_upgrade(options[i])
+                        player.apply_upgrade(upgrade_options[i])
                         main.paused = False
                         print("selected")
                         return True  # Upgrade selected
