@@ -62,9 +62,12 @@ def main():
             options, rects = show_upgrade_menu(screen)
             handle_upgrade_selection(rects, options, player)
             paused = False
+            Clock.tick()
         
         
         dt = Clock.tick(60) / 1000
+        
+        
         
         pygame.display.flip()
 

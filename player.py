@@ -23,7 +23,7 @@ class Player(CircleShape):
 
     def gain_exp(self, amount):
         self.exp += amount
-        if self.exp >= 10:
+        if self.exp >= 10 * (self.level ** 2):
             self.level_up()
     
     def level_up(self):
@@ -87,7 +87,7 @@ class Player(CircleShape):
         else:
             for i in range(self.shots):
                 angle_offset = (i - (self.shots - 1) / 2) * 10
-                bullet = Shot(self.position[0], self.position[1], SHOT_RADIUS)
+                bullet = Shot(self.position[0], self.position[1], self.shot_radius)
                 bullet.velocity = pygame.Vector2(0, 1).rotate(self.rotation + angle_offset) * SHOT_SPEED
                 bullet.piercing = self.piercing
                 self.shot_cooldown = PLAYER_SHOOT_COOLDOWN / self.shots
