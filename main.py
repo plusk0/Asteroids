@@ -99,10 +99,10 @@ async def main():
 
             if player.level > level:
                 level = player.level
-                paused = True
-                Menu.level_up(screen, player)
+                options, rects = Menu.show_upgrade_menu(screen)
+                await Menu.handle_upgrade_selection(rects, options, player)
+
                 asteroid_field.modifier = 1 + (player.level / 10)
-                paused = False
                 Clock.tick()
             
             dt = Clock.tick(120) / 1000

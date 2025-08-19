@@ -44,7 +44,7 @@ class Menu(pygame.sprite.Sprite):
         pygame.display.flip()
         return upgrade_options, rects
 
-    def handle_upgrade_selection(rects, upgrade_options, player):
+    async def handle_upgrade_selection(rects, upgrade_options, player):
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -69,6 +69,7 @@ class Menu(pygame.sprite.Sprite):
                 elif event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
+            await asyncio.sleep(0)  # Yield control to the browser
             
                 
 
@@ -96,10 +97,6 @@ class Menu(pygame.sprite.Sprite):
 
     def update(screen, player):
         Menu.draw(screen, player)
-
-    def level_up(screen, player):
-        options, rects = Menu.show_upgrade_menu(screen)
-        Menu.handle_upgrade_selection(rects, options, player)
 
     @staticmethod
     def show_game_over(screen, player):
