@@ -66,9 +66,7 @@ async def main():
                         player.health -= 1
                         asteroid.kill()
                     else:
-                        print("GAME OVER!")
                         restart = await Menu.show_game_over(screen)
-                        print(restart)
                         if restart == True:
                             break  # Break inner loop to restart
                         else:
