@@ -37,7 +37,7 @@ class Menu(pygame.sprite.Sprite):
             rect = pygame.Rect(start_x + i * (constants.SCREEN_WIDTH / 4), start_y, constants.SCREEN_WIDTH / 6, menu_height)
             rects.append(rect)
             pygame.draw.rect(screen, (20, 180, 180), rect)
-            font = pygame.font.SysFont(None, 28 * int(constants.SCALE))
+            font = pygame.font.SysFont(None, 36 * int(constants.SCALE))
             text = font.render(upgrade, True, (255, 255, 255))
             screen.blit(text, (rect.x + 20 * constants.SCALE, rect.y + menu_height / 2))
 
@@ -99,20 +99,19 @@ class Menu(pygame.sprite.Sprite):
         Menu.draw(screen, player)
 
     @staticmethod
-    def show_game_over(screen, player):
+    async def show_game_over(screen):
         font = pygame.font.SysFont(None, 48 * int(constants.SCALE))
         text = font.render("GAME OVER!", True, (255, 0, 0))
         screen.fill((0, 0, 0))
         screen.blit(text, (constants.SCREEN_WIDTH // 2 - text.get_width() // 2, constants.SCREEN_HEIGHT // 2 - text.get_height() // 2))
         pygame.display.flip()
 
-        waiting = True
-        while waiting:
+        while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     return
                 elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
-                    waiting = False
-            pygame.time.delay(50)
-        return True
+                    return True
+            
+        

@@ -27,7 +27,6 @@ async def main():
         AsteroidField.containers = (updatable)
         Shot.containers = (shots, updatable, drawable)
 
-        paused = False
         dt = 0
 
         player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
@@ -40,7 +39,7 @@ async def main():
         pygame.time.wait(1000)
 
         # --- Main game loop ---
-        while not paused:
+        while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return
@@ -68,9 +67,9 @@ async def main():
                         asteroid.kill()
                     else:
                         print("GAME OVER!")
-                        paused = True
-                        restart = Menu.show_game_over(screen, player)
-                        if restart:
+                        restart = await Menu.show_game_over(screen)
+                        print(restart)
+                        if restart == True:
                             break  # Break inner loop to restart
                         else:
                             return 
