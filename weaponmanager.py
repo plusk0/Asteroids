@@ -10,9 +10,9 @@ class WeaponManager:
     def add_default_weapons(self):
         Rotate = Rotator(self.player)
         self.weapons.append(Rotate)
-        print("Default weapons added to WeaponManager")
         #Add other weapons here
         pass
+    
     def update(self, player, screen, dt):
         for weapon in self.weapons:
             weapon.update(player, screen, dt)

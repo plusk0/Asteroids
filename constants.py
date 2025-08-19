@@ -7,14 +7,17 @@ PLAYER_TURN_SPEED = 300
 PLAYER_SPEED = 300
 PLAYER_HEALTH = 3
 PLAYER_SHIELD = 0
-
-WEAPONS = ["Rotator", "Laser"]
-UPGRADES = ["Multi Shot", "Shield", "Bigger Bullets", "Extra Life", "Piercing Bullets", "Rapid Fire"]
+SHIELD_DURATION = 2000  # milliseconds
 
 PLAYER_SHOOT_SPEED = 500
 PLAYER_SHOOT_COOLDOWN = 1
 PLAYER_SHOT_NO = 1
 PLAYER_SHOT_PIERCE = 0
+
+WEAPONS = ["Rotator", "Laser"]
+UPGRADES = ["Multi Shot", "Shield", "Bigger Bullets", "Extra Life", "Piercing Bullets", "Rapid Fire"]
+
+
 
 SHOT_RADIUS = 7
 SHOT_SPEED = 400

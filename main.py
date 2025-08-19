@@ -5,7 +5,6 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
-from weaponmanager import WeaponManager
 
 
 def main():
@@ -18,27 +17,22 @@ def main():
     shots = pygame.sprite.Group()
     weapons = pygame.sprite.Group()
 
-    paused = False
-    dt = 0
-    Menu.update_scale(1)
-    screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
-
     Player.containers = (updatable, drawable)
     Asteroid.containers = (asteroids, updatable, drawable)
     AsteroidField.containers = (updatable)
     Shot.containers = (shots, updatable, drawable)
 
-
+    paused = False
+    dt = 0
+    Menu.update_scale(1)
+    screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
 
     player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
+    shielded_until = 0
     weapon_manager = player.weapon_manager
 
     level = player.level
     asteroid_field = AsteroidField()
-
-    #print("Starting Asteroids!")
-    #print("Screen width:", constants.SCREEN_WIDTH)
-    #print("Screen height:", constants.SCREEN_HEIGHT)
     
     pygame.time.wait(1000) # Initial delay to ensure loading with less weird lag
 
@@ -50,11 +44,21 @@ def main():
         updatable.update(dt)
         weapon_manager.update(player, screen, dt)
 
+        if player.shielded and pygame.time.get_ticks() > shielded_until:
+            player.shielded = False
+
         for asteroid in asteroids:
             if asteroid.collide(player):
+                if player.shielded and pygame.time.get_ticks() < shielded_until:
+                    asteroid.kill()
+                    continue
+
                 if player.shield > 0:
                     player.shield -= 1
                     asteroid.kill()
+                    shielded_until = pygame.time.get_ticks() + constants.SHIELD_DURATION
+                    player.shielded = True
+
                 elif player.health > 1:
                     player.health -= 1
                     asteroid.kill()
@@ -92,12 +96,11 @@ def main():
             paused = False
             Clock.tick()
         
-        
         dt = Clock.tick(120) / 1000
-        
-        
-        
+    
         pygame.display.flip()
+
+        pygame.display.set_caption(f"Score: {player.score} | Level: {player.level} | Health: {player.health} | Shield: {player.shield}")
 
 if __name__ == "__main__":
     main()

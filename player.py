@@ -17,6 +17,7 @@ class Player(CircleShape):
         self.exp = 0
         self.level = 1
         self.shield = constants.PLAYER_SHIELD
+        self.shielded = False
         self.health = constants.PLAYER_HEALTH
 
         self.shots = constants.PLAYER_SHOT_NO
@@ -60,7 +61,6 @@ class Player(CircleShape):
         self.level += 1
 
     def apply_upgrade(self, upgrade):
-        #print(f"Upgrade applied: {upgrade} to player level {self.level}")
         match upgrade:
             case "Multi Shot":
                 self.shots += 1
@@ -71,7 +71,7 @@ class Player(CircleShape):
             case "Piercing Bullets":
                 self.piercing += 1
             case "Bigger Bullets":
-                self.shot_radius = max((20 * constants.SCALE), self.shot_radius + (2 * constants.SCALE))
+                self.shot_radius = max((20 * constants.SCALE), self.shot_radius + (0.5 * constants.SCALE))
             case "Rapid Fire":
                 self.shot_cooldown = max(0.01, self.shot_cooldown - (0.4 * self.shot_cooldown))
             case _ if upgrade in constants.WEAPONS:
@@ -79,8 +79,12 @@ class Player(CircleShape):
         return
 
     def draw (self, screen):
+        if self.shielded == True:
+            pygame.draw.circle(screen, [180, 20, 20], self.position, self.radius * 1.5)
+
         if self.shield > 0:
             pygame.draw.circle(screen, [20, 180, 180], self.position, self.radius * 1.5)
+        
 
         pygame.draw.polygon(screen, [255,255,255], self.triangle(), 2)
 
