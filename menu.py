@@ -1,6 +1,7 @@
 import pygame
 import constants
 import random
+import asyncio
 
 
 class Menu(pygame.sprite.Sprite):
@@ -69,7 +70,7 @@ class Menu(pygame.sprite.Sprite):
                     pygame.quit()
                     exit()
             
-                pygame.time.delay(10)
+                
 
 
     def draw(screen, player):
