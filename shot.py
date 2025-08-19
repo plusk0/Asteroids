@@ -8,7 +8,7 @@ class Shot(CircleShape):
         self.piercing = 0
 
     def draw(self, screen):
-        pygame.draw.circle(screen, "white", self.position, self.radius)
+        pygame.draw.circle(screen, [210,255,255], self.position, self.radius)
     
     def update(self, dt):
         self.position += dt * self.velocity

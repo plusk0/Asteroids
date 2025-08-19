@@ -1,6 +1,8 @@
 from circleshape import *
 import constants
+from weaponmanager import WeaponManager
 from shot import Shot
+
 
 
 class Player(CircleShape):
@@ -10,6 +12,8 @@ class Player(CircleShape):
         self.y = y
         
         super().__init__(x, y, constants.PLAYER_RADIUS)
+        
+
         self.exp = 0
         self.level = 1
         self.shield = constants.PLAYER_SHIELD
@@ -25,6 +29,8 @@ class Player(CircleShape):
         self.score = 0
 
         self.icon_shape = self._compute_icon_shape()
+
+        self.weapon_manager = WeaponManager(self)
 
     def _compute_icon_shape(self):
         small_radius = 15 * constants.SCALE
@@ -68,6 +74,8 @@ class Player(CircleShape):
                 self.shot_radius = max((20 * constants.SCALE), self.shot_radius + (2 * constants.SCALE))
             case "Rapid Fire":
                 self.shot_cooldown = max(0.01, self.shot_cooldown - (0.4 * self.shot_cooldown))
+            case _ if upgrade in constants.WEAPONS:
+                self.weapon_manager.apply_upgrade_by_name(upgrade)
         return
 
     def draw (self, screen):

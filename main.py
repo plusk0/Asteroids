@@ -5,15 +5,18 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
+from weaponmanager import WeaponManager
 
 
 def main():
     pygame.init()
     Clock = pygame.time.Clock()
+
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
+    weapons = pygame.sprite.Group()
 
     paused = False
     dt = 0
@@ -26,10 +29,12 @@ def main():
     Shot.containers = (shots, updatable, drawable)
 
 
+
     player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
+    weapon_manager = player.weapon_manager
+
     level = player.level
     asteroid_field = AsteroidField()
-
 
     #print("Starting Asteroids!")
     #print("Screen width:", constants.SCREEN_WIDTH)
@@ -43,6 +48,8 @@ def main():
                 return
             
         updatable.update(dt)
+        weapon_manager.update(player, screen, dt)
+
         for asteroid in asteroids:
             if asteroid.collide(player):
                 if player.shield > 0:
@@ -55,7 +62,10 @@ def main():
                     print("GAME OVER!")
                     exit()
 
-            for shot in shots:
+            for shot in list(shots) + weapon_manager.get_all_shots():
+                if hasattr(shot, "is_active") and not shot.is_active():
+                    continue
+
                 if asteroid.collide(shot):
                     asteroid.kill()
                     player.score += 100
@@ -71,6 +81,9 @@ def main():
         
         Menu.update(screen, player)
 
+        for weapon in weapons:
+            weapon.update(player, screen, dt)
+
         if player.level > level:
             level = player.level
             paused = True
@@ -80,7 +93,7 @@ def main():
             Clock.tick()
         
         
-        dt = Clock.tick(60) / 1000
+        dt = Clock.tick(120) / 1000
         
         
         

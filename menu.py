@@ -2,6 +2,7 @@ import pygame
 import constants
 import random
 
+
 class Menu(pygame.sprite.Sprite):
 
     @staticmethod
@@ -23,7 +24,7 @@ class Menu(pygame.sprite.Sprite):
 
     def show_upgrade_menu(screen):
         print(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
-        upgrade_options = random.sample(constants.UPGRADES, 3)
+        upgrade_options = random.sample(constants.UPGRADES + constants.WEAPONS, 3)
         rects = []
         menu_width = constants.SCREEN_WIDTH / 1.5
         menu_height = constants.SCREEN_HEIGHT / 4
@@ -87,10 +88,7 @@ class Menu(pygame.sprite.Sprite):
         screen.blit(text, (constants.SCREEN_WIDTH / 2, 100))
 
     def update(screen, player):
-
         Menu.draw(screen, player)
-
-
 
     def level_up(screen, player):
         options, rects = Menu.show_upgrade_menu(screen)
