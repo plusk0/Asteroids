@@ -23,7 +23,6 @@ class Menu(pygame.sprite.Sprite):
         constants.SHOT_SPEED = constants.PLAYER_SPEED * constants.SCALE
 
     def show_upgrade_menu(screen):
-        print(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
         upgrade_options = random.sample(constants.UPGRADES + constants.WEAPONS, 3)
         rects = []
         menu_width = constants.SCREEN_WIDTH / 1.5
@@ -72,6 +71,11 @@ class Menu(pygame.sprite.Sprite):
 
 
     def draw(screen, player):
+
+        for i in range(player.max_health):
+            corner_pos = pygame.Vector2((20 + (20*i)) * constants.SCALE, (20 + (20*i)) * constants.SCALE)
+            points = [corner_pos + p for p in player.icon_shape]
+            pygame.draw.polygon(screen, [255, 200, 200], points)
 
         for i in range(player.health):
             corner_pos = pygame.Vector2((20 + (20*i)) * constants.SCALE, (20 + (20*i)) * constants.SCALE)

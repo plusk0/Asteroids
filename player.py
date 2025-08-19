@@ -18,7 +18,8 @@ class Player(CircleShape):
         self.level = 1
         self.shield = constants.PLAYER_SHIELD
         self.shielded = False
-        self.health = constants.PLAYER_HEALTH
+        self.max_health = constants.PLAYER_HEALTH
+        self.health = self.max_health
 
         self.shots = constants.PLAYER_SHOT_NO
         self.piercing = constants.PLAYER_SHOT_PIERCE
@@ -67,7 +68,8 @@ class Player(CircleShape):
             case "Shield":
                 self.shield += 1
             case "Extra Life":
-                self.health += 1
+                self.max_health += 1
+                self.health = self.max_health
             case "Piercing Bullets":
                 self.piercing += 1
             case "Bigger Bullets":
