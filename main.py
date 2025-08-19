@@ -1,5 +1,5 @@
-import pygame
-import constants
+import pygame, constants, asyncio
+
 from menu import Menu
 from player import Player
 from asteroid import Asteroid
@@ -7,7 +7,7 @@ from asteroidfield import AsteroidField
 from shot import Shot
 
 
-def main():
+async def main():
     pygame.init()
     Clock = pygame.time.Clock()
 
@@ -97,10 +97,12 @@ def main():
             Clock.tick()
         
         dt = Clock.tick(120) / 1000
-    
+        await asyncio.sleep(0)
+
         pygame.display.flip()
 
         pygame.display.set_caption(f"Score: {player.score} | Level: {player.level} | Health: {player.health} | Shield: {player.shield}")
 
-if __name__ == "__main__":
-    main()
+
+
+asyncio.run(main())
