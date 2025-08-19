@@ -1,27 +1,10 @@
 import pygame
 import constants
+from menu import Menu
 from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
-from menu import *
-
-
-def update_scale(x):
-    if constants.SCALE == 1:
-        width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
-        constants.SCALE = width / constants.SCREEN_WIDTH
-
-        constants.ASTEROID_MAX_RADIUS = constants.ASTEROID_MAX_RADIUS * constants.SCALE
-        constants.ASTEROID_MIN_RADIUS = constants.ASTEROID_MIN_RADIUS * constants.SCALE
-        constants.PLAYER_RADIUS = constants.PLAYER_RADIUS * constants.SCALE
-        constants.SHOT_RADIUS = constants.SHOT_RADIUS * constants.SCALE
-
-        constants.SCREEN_HEIGHT = height
-        constants.SCREEN_WIDTH = width
-
-        constants.PLAYER_SPEED = constants.PLAYER_SPEED * constants.SCALE
-        constants.SHOT_SPEED = constants.PLAYER_SPEED * constants.SCALE
 
 
 def main():
@@ -31,10 +14,10 @@ def main():
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
-    paused = False
 
+    paused = False
     dt = 0
-    update_scale(1)
+    Menu.update_scale(1)
     screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
 
     Player.containers = (updatable, drawable)
@@ -48,10 +31,12 @@ def main():
     asteroid_field = AsteroidField()
 
 
-    print("Starting Asteroids!")
-    print("Screen width:", constants.SCREEN_WIDTH)
-    print("Screen height:", constants.SCREEN_HEIGHT)
+    #print("Starting Asteroids!")
+    #print("Screen width:", constants.SCREEN_WIDTH)
+    #print("Screen height:", constants.SCREEN_HEIGHT)
     
+    pygame.time.wait(1000) # Initial delay to ensure loading with less weird lag
+
     while paused == False:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -80,14 +65,16 @@ def main():
                         shot.kill()
                     player.gain_exp(10)
         screen.fill(0)
+
         for entity in drawable:
             entity.draw(screen)
+        
+        Menu.update(screen, player)
 
         if player.level > level:
             level = player.level
             paused = True
-            options, rects = show_upgrade_menu(screen)
-            handle_upgrade_selection(rects, options, player)
+            Menu.level_up(screen, player)
             asteroid_field.modifier = 1 + (player.level / 10)
             paused = False
             Clock.tick()
