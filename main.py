@@ -8,13 +8,16 @@ from shot import Shot
 
 
 async def main():
-    pygame.init()
-    Clock = pygame.time.Clock()
-    Menu.update_scale(1)
-    screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
+    
 
     # Outer loop for restarting the game
-    while True:  
+    while True: 
+
+        pygame.init()
+        Clock = pygame.time.Clock()
+        Menu.update_scale()
+        screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)) 
+        
 
         updatable = pygame.sprite.Group()
         drawable = pygame.sprite.Group()
@@ -35,11 +38,16 @@ async def main():
 
         level = player.level
         asteroid_field = AsteroidField()
+
+        restart = False
         
-        pygame.time.wait(1000)
+        
 
         # --- Main game loop ---
         while True:
+            if restart == True:
+                break
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return
@@ -51,9 +59,12 @@ async def main():
                 player.shielded = False
 
             for asteroid in asteroids:
+                
                 if asteroid.collide(player):
                     if player.shielded and pygame.time.get_ticks() < shielded_until:
                         asteroid.kill()
+                        player.gain_exp()
+                        player.gain_score()
                         continue
 
                     if player.shield > 0:
@@ -78,12 +89,12 @@ async def main():
 
                     if asteroid.collide(shot):
                         asteroid.kill()
-                        player.score += 100
+                        player.gain_score()
                         if shot.piercing > 0:
                             shot.piercing -= 1
                         else:
                             shot.kill()
-                        player.gain_exp(10)
+                        player.gain_exp()
             screen.fill(0)
 
             for entity in drawable:

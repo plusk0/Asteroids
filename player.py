@@ -52,11 +52,15 @@ class Player(CircleShape):
         return [a, b, c]
 
 
-    def gain_exp(self, amount):
-        self.exp += amount
+    def gain_exp(self):
+        self.exp += 10
         if self.exp >= 10 * (self.level ** 2):
             self.level_up()
     
+    def gain_score(self):
+        self.score += 100
+        
+
     def level_up(self):
         self.exp = 0
         self.level += 1

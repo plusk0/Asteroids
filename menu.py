@@ -6,11 +6,11 @@ import asyncio
 
 class Menu(pygame.sprite.Sprite):
 
-    @staticmethod
-    def update_scale(x):
-        if constants.SCALE == 1:
-            width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
-            constants.SCALE = width / constants.SCREEN_WIDTH
+    @staticmethod  # I'm aware updating constants like this is some mad spaghetti code, but it works for now
+    def update_scale():
+        width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
+        #if constants.SCALE == 1:
+        constants.SCALE = width / constants.SCREEN_WIDTH
 
         constants.ASTEROID_MAX_RADIUS = constants.ASTEROID_MAX_RADIUS * constants.SCALE
         constants.ASTEROID_MIN_RADIUS = constants.ASTEROID_MIN_RADIUS * constants.SCALE
