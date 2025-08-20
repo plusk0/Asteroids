@@ -107,7 +107,7 @@ class Menu(pygame.sprite.Sprite):
         self.draw(screen, player)
 
     @staticmethod
-    async def show_game_over(self, screen):
+    async def show_game_over(screen):
         font = pygame.font.SysFont(None, 48 * int(constants.SCALE))
         text = font.render("GAME OVER!", True, (255, 0, 0))
         screen.fill((0, 0, 0))

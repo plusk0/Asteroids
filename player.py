@@ -86,16 +86,6 @@ class Player(CircleShape):
                 self.weapon_manager.apply_upgrade_by_name(upgrade)
         return
 
-   # def draw_old (self, screen): # not in use anymore, but keeping for reference
-   #     if self.shielded == True:
-   #         pygame.draw.circle(screen, [180, 20, 20], self.position, self.radius * 1.5)
-
-   #     if self.shield > 0:
-   #         pygame.draw.circle(screen, [20, 180, 180], self.position, self.radius * 1.5)
-        
-
-    #    pygame.draw.polygon(screen, [255,255,255], self.triangle(), 2)
-
     def draw (self, screen):
         if self.shielded == True:
             pygame.draw.circle(screen, [180, 20, 20], self.position, self.radius * 2)
@@ -110,8 +100,6 @@ class Player(CircleShape):
         
         screen.blit(image, self.position - pygame.Vector2(image.get_width() / 2, image.get_height() / 2))
         #pygame.draw.polygon(screen, [255,255,255], self.triangle(), 2) # debugging triangle
-
-
 
     def update(self, dt):
         keys = pygame.key.get_pressed()

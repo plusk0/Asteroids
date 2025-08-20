@@ -9,15 +9,17 @@ from shot import Shot
 
 async def main():
     
-    
+    pygame.init()
+    screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
+    pygame.display.set_caption(f"Space Game - Version 0.0.0.69") 
     # Outer loop for restarting the game
     while True: 
 
-        pygame.init()
+        
         Clock = pygame.time.Clock()
         gameMenu = Menu()
-        screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)) 
-        pygame.display.set_caption(f"Space Game - Version 0.0.0.69")
+        
+        
 
         updatable = pygame.sprite.Group()
         drawable = pygame.sprite.Group()
@@ -31,12 +33,11 @@ async def main():
         Shot.containers = (shots, updatable, drawable)
 
         dt = 0
+        shielded_until = 0
+        level = 1
 
         player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
-        shielded_until = 0
         weapon_manager = player.weapon_manager
-
-        level = player.level
         asteroid_field = AsteroidField()
 
         restart = False
