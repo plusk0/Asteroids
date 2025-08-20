@@ -10,11 +10,17 @@ class Player(CircleShape):
         self.rotation = 0
         self.x = x
         self.y = y
+
+        self.sprites = []
+        self.sprites.append(pygame.image.load("sprites/sprite_0.png").convert_alpha())
+        self.sprites.append(pygame.image.load("sprites/sprite_1.png").convert_alpha())
+        self.sprites.append(pygame.image.load("sprites/sprite_2.png").convert_alpha())
+        self.currentsprite = 0
         
         super().__init__(x, y, constants.PLAYER_RADIUS)
         
-
         self.exp = 0
+        self.score = 0
         self.level = 1
         self.shield = constants.PLAYER_SHIELD
         self.shielded = False
@@ -27,8 +33,6 @@ class Player(CircleShape):
         self.shot_cooldown = constants.PLAYER_SHOOT_COOLDOWN
         self.shot_speed = constants.SHOT_SPEED
         self.current_cooldown = self.shot_cooldown
-
-        self.score = 0
 
         self.icon_shape = self._compute_icon_shape()
 
@@ -51,7 +55,6 @@ class Player(CircleShape):
         c = self.position - forward * self.radius + right
         return [a, b, c]
 
-
     def gain_exp(self):
         self.exp += 10
         if self.exp >= 10 * (self.level ** 2):
@@ -60,7 +63,6 @@ class Player(CircleShape):
     def gain_score(self):
         self.score += 100
         
-
     def level_up(self):
         self.exp = 0
         self.level += 1
@@ -84,15 +86,32 @@ class Player(CircleShape):
                 self.weapon_manager.apply_upgrade_by_name(upgrade)
         return
 
-    def draw (self, screen):
-        if self.shielded == True:
-            pygame.draw.circle(screen, [180, 20, 20], self.position, self.radius * 1.5)
+   # def draw_old (self, screen): # not in use anymore, but keeping for reference
+   #     if self.shielded == True:
+   #         pygame.draw.circle(screen, [180, 20, 20], self.position, self.radius * 1.5)
 
-        if self.shield > 0:
-            pygame.draw.circle(screen, [20, 180, 180], self.position, self.radius * 1.5)
+   #     if self.shield > 0:
+   #         pygame.draw.circle(screen, [20, 180, 180], self.position, self.radius * 1.5)
         
 
-        pygame.draw.polygon(screen, [255,255,255], self.triangle(), 2)
+    #    pygame.draw.polygon(screen, [255,255,255], self.triangle(), 2)
+
+    def draw (self, screen):
+        if self.shielded == True:
+            pygame.draw.circle(screen, [180, 20, 20], self.position, self.radius * 2)
+
+        if self.shield > 0:
+            pygame.draw.circle(screen, [20, 180, 180], self.position, self.radius * 2)
+
+        self.currentsprite += 1
+        if self.currentsprite >= len(self.sprites):
+            self.currentsprite = 0
+        image = pygame.transform.rotate(self.sprites[self.currentsprite], -self.rotation + 180)
+        
+        screen.blit(image, self.position - pygame.Vector2(image.get_width() / 2, image.get_height() / 2))
+        #pygame.draw.polygon(screen, [255,255,255], self.triangle(), 2) # debugging triangle
+
+
 
     def update(self, dt):
         keys = pygame.key.get_pressed()

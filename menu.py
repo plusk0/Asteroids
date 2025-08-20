@@ -5,9 +5,15 @@ import asyncio
 
 
 class Menu(pygame.sprite.Sprite):
+    
+    
+    def __init__(self):
+        self.fontsize = 32 * int(constants.SCALE)
+        self.font = pygame.font.SysFont(None, self.fontsize)
+        self.background_color = (0, 0, 0)
 
     @staticmethod  # I'm aware updating constants like this is some mad spaghetti code, but it works for now
-    def update_scale():
+    def update_scale(self):
         width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
         #if constants.SCALE == 1:
         constants.SCALE = width / constants.SCREEN_WIDTH
@@ -23,9 +29,7 @@ class Menu(pygame.sprite.Sprite):
         constants.PLAYER_SPEED = constants.PLAYER_SPEED * constants.SCALE
         constants.SHOT_SPEED = constants.PLAYER_SPEED * constants.SCALE
 
-    
-
-    def show_upgrade_menu(screen):
+    def show_upgrade_menu(self, screen):
         upgrade_options = random.sample(constants.UPGRADES + constants.WEAPONS, 3)
         rects = []
         menu_width = constants.SCREEN_WIDTH / 1.5
@@ -37,14 +41,18 @@ class Menu(pygame.sprite.Sprite):
             rect = pygame.Rect(start_x + i * (constants.SCREEN_WIDTH / 4), start_y, constants.SCREEN_WIDTH / 6, menu_height)
             rects.append(rect)
             pygame.draw.rect(screen, (20, 180, 180), rect)
-            font = pygame.font.SysFont(None, 36 * int(constants.SCALE))
-            text = font.render(upgrade, True, (255, 255, 255))
-            screen.blit(text, (rect.x + 20 * constants.SCALE, rect.y + menu_height / 2))
+            font1 = pygame.font.SysFont(None, self.fontsize * 2 // 3)
+            font2 = pygame.font.SysFont(None, self.fontsize)
+
+            text1 = font1.render(f"Press {i + 1}:", True, (255, 255, 255))
+            text2 = font2.render(f"{upgrade}", True, (255, 255, 255))
+            screen.blit(text1, (rect.x + 20 * constants.SCALE, (rect.y + menu_height / 3) - self.fontsize / 2))
+            screen.blit(text2, (rect.x + 20 * constants.SCALE, (rect.y + menu_height / 3) + self.fontsize / 2))
 
         pygame.display.flip()
         return upgrade_options, rects
 
-    async def handle_upgrade_selection(rects, upgrade_options, player):
+    async def handle_upgrade_selection(self, rects, upgrade_options, player):
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -55,7 +63,7 @@ class Menu(pygame.sprite.Sprite):
                 elif event.type == pygame.KEYDOWN:
                     match event.key:
                         case pygame.K_ESCAPE:
-                            return False  # Skip upgrade
+                            return False
                         case pygame.K_1:
                             player.apply_upgrade(upgrade_options[0])
                             return True
@@ -74,7 +82,7 @@ class Menu(pygame.sprite.Sprite):
                 
 
 
-    def draw(screen, player):
+    def draw(self, screen, player):
 
         for i in range(player.max_health):
             corner_pos = pygame.Vector2((20 + (20*i)) * constants.SCALE, (20 + (20*i)) * constants.SCALE)
@@ -93,13 +101,13 @@ class Menu(pygame.sprite.Sprite):
 
         font = pygame.font.SysFont(None, 28 * int(constants.SCALE))
         text = font.render(f"Score {player.score}", True, (255, 255, 255))
-        screen.blit(text, (constants.SCREEN_WIDTH / 2, 100))
+        screen.blit(text, (constants.SCREEN_WIDTH / 2, 10 * constants.SCALE))
 
-    def update(screen, player):
-        Menu.draw(screen, player)
+    def update(self, screen, player):
+        self.draw(screen, player)
 
     @staticmethod
-    async def show_game_over(screen):
+    async def show_game_over(self, screen):
         font = pygame.font.SysFont(None, 48 * int(constants.SCALE))
         text = font.render("GAME OVER!", True, (255, 0, 0))
         screen.fill((0, 0, 0))

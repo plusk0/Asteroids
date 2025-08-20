@@ -9,15 +9,15 @@ from shot import Shot
 
 async def main():
     
-
+    
     # Outer loop for restarting the game
     while True: 
 
         pygame.init()
         Clock = pygame.time.Clock()
-        Menu.update_scale()
+        gameMenu = Menu()
         screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)) 
-        
+        pygame.display.set_caption(f"Space Game - Version 0.0.0.69")
 
         updatable = pygame.sprite.Group()
         drawable = pygame.sprite.Group()
@@ -77,7 +77,7 @@ async def main():
                         player.health -= 1
                         asteroid.kill()
                     else:
-                        restart = await Menu.show_game_over(screen)
+                        restart = await gameMenu.show_game_over(screen)
                         if restart == True:
                             break  # Break inner loop to restart
                         else:
@@ -100,15 +100,15 @@ async def main():
             for entity in drawable:
                 entity.draw(screen)
             
-            Menu.update(screen, player)
+            gameMenu.update(screen, player)
 
             for weapon in weapons:
                 weapon.update(player, screen, dt)
 
             if player.level > level:
                 level = player.level
-                options, rects = Menu.show_upgrade_menu(screen)
-                await Menu.handle_upgrade_selection(rects, options, player)
+                options, rects = gameMenu.show_upgrade_menu(screen)
+                await gameMenu.handle_upgrade_selection(rects, options, player)
 
                 asteroid_field.modifier = 1 + (player.level / 10)
                 Clock.tick()
@@ -117,6 +117,6 @@ async def main():
             await asyncio.sleep(0)
 
             pygame.display.flip()
-            pygame.display.set_caption(f"Space Game - Version 0.0.0.69")
+        
 
 asyncio.run(main())
