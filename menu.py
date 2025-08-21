@@ -12,10 +12,9 @@ class Menu(pygame.sprite.Sprite):
         self.font = pygame.font.SysFont(None, self.fontsize)
         self.background_color = (0, 0, 0)
 
-    @staticmethod  # I'm aware updating constants like this is some mad spaghetti code, but it works for now
-    def update_scale(self):
+    @staticmethod  # I'm aware updating constants like this is some mad spaghetti code, but it mostly works for now
+    def update_scale():
         width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
-        #if constants.SCALE == 1:
         constants.SCALE = width / constants.SCREEN_WIDTH
 
         constants.ASTEROID_MAX_RADIUS = constants.ASTEROID_MAX_RADIUS * constants.SCALE

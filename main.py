@@ -10,8 +10,10 @@ from shot import Shot
 async def main():
     
     pygame.init()
+    Menu.update_scale()
     screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
     pygame.display.set_caption(f"Space Game - Version 0.0.0.69") 
+
     # Outer loop for restarting the game
     while True: 
 
@@ -113,6 +115,7 @@ async def main():
 
                 asteroid_field.modifier = 1 + (player.level / 10)
                 Clock.tick()
+            
             
             dt = Clock.tick(120) / 1000
             await asyncio.sleep(0)

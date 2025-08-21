@@ -5,5 +5,5 @@ __pycache__/
 *.pyc
 *.egg-info
 *-pygbag.???
-/build
-/dist
+build/
+sprites/
