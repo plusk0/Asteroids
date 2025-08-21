@@ -13,6 +13,7 @@ async def main():
     Menu.update_scale()
     screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
     pygame.display.set_caption(f"Space Game - Version 0.0.0.69") 
+    difficulty = 0
 
     # Outer loop for restarting the game
     while True: 
@@ -43,6 +44,9 @@ async def main():
         asteroid_field = AsteroidField()
 
         restart = False
+
+        difficulty_options, rects =  gameMenu.select_difficulty(screen)
+        difficulty = await gameMenu.handle_difficulty_selection(rects, difficulty_options)
         
         
 
@@ -113,7 +117,8 @@ async def main():
                 options, rects = gameMenu.show_upgrade_menu(screen)
                 await gameMenu.handle_upgrade_selection(rects, options, player)
 
-                asteroid_field.modifier = 1 + (player.level / 10)
+                asteroid_field.modifier = (1 + (player.level / 10)) * (difficulty + 1)
+
                 Clock.tick()
             
             
