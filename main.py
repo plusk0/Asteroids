@@ -86,7 +86,7 @@ class Game():
                             player.health -= 1
                             asteroid.kill()
                         else:
-                            restart = await gameMenu.show_game_over(self.screen)
+                            restart = await gameMenu.show_game_over(self)
                             if restart == True:
                                 break  # Break inner loop to restart
                             else:
@@ -123,7 +123,7 @@ class Game():
 
                     Clock.tick()
                 
-                self.actual_screen.blit(pygame.transform.scale(self.screen, self.screen.get_rect().size), (0, 0))
+                self.actual_screen.blit(pygame.transform.scale(self.screen, self.actual_screen.get_rect().size), (0, 0))
                 dt = Clock.tick(120) / 1000
                 await asyncio.sleep(0)
 

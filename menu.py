@@ -14,9 +14,10 @@ class Menu(pygame.sprite.Sprite):
 
     @staticmethod  # I'm aware updating constants like this is some mad spaghetti code, but it mostly works for now
     def update_scale():
-        width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
-        constants.SCREEN_HEIGHT = height
-        constants.SCREEN_WIDTH = width
+        pass
+        #width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
+        #constants.SCREEN_HEIGHT = height
+        #constants.SCREEN_WIDTH = width
 
             
 
@@ -40,7 +41,7 @@ class Menu(pygame.sprite.Sprite):
             text2 = font2.render(f"{difficulty[1]}", True, (255, 255, 255))
             screen.blit(text1, (rect.x + 20, (rect.y + menu_height / 3) - self.fontsize / 2))
             screen.blit(text2, (rect.x + 20, (rect.y + menu_height / 3) + self.fontsize / 2))
-        Game.actual_screen.blit(pygame.transform.scale(screen, screen.get_rect().size), (0, 0))
+        Game.actual_screen.blit(pygame.transform.scale(Game.screen, Game.actual_screen.get_rect().size), (0, 0))
         pygame.display.flip()
         return difficulty_options, rects
     
@@ -147,11 +148,13 @@ class Menu(pygame.sprite.Sprite):
         self.draw(screen, player)
 
     @staticmethod
-    async def show_game_over(screen):
+    async def show_game_over(Game):
+        screen = Game.screen
         font = pygame.font.SysFont(None, 48)
         text = font.render("GAME OVER!", True, (255, 0, 0))
         screen.fill((0, 0, 0))
         screen.blit(text, (constants.SCREEN_WIDTH // 2 - text.get_width() // 2, constants.SCREEN_HEIGHT // 2 - text.get_height() // 2))
+        Game.actual_screen.blit(pygame.transform.scale(Game.screen, Game.actual_screen.get_rect().size), (0, 0))
         pygame.display.flip()
 
         while True:
