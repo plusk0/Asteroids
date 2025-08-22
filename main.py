@@ -38,7 +38,7 @@ async def main():
         dt = 0
         shielded_until = 0
         level = 1
-
+        # testing
         player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
         weapon_manager = player.weapon_manager
         asteroid_field = AsteroidField()
