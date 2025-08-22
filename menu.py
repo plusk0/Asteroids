@@ -26,7 +26,7 @@ class Menu(pygame.sprite.Sprite):
         difficulty_options = [(0 , "easy"), (1 , "medium"),(2 , "nightmare")]
         rects = []
         menu_width = constants.SCREEN_WIDTH / 1.5
-        menu_height = constants.SCREEN_HEIGHT / 4
+        menu_height = constants.SCREEN_HEIGHT / 7
         start_x = (constants.SCREEN_WIDTH - menu_width) // 2
         start_y = (constants.SCREEN_HEIGHT - menu_height) // 2
         
@@ -74,7 +74,7 @@ class Menu(pygame.sprite.Sprite):
         upgrade_options = random.sample(constants.UPGRADES + constants.WEAPONS, 3)
         rects = []
         menu_width = constants.SCREEN_WIDTH / 1.5
-        menu_height = constants.SCREEN_HEIGHT / 4
+        menu_height = constants.SCREEN_HEIGHT / 7
         start_x = (constants.SCREEN_WIDTH - menu_width) // 2
         start_y = (constants.SCREEN_HEIGHT - menu_height) // 2
 

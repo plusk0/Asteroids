@@ -81,22 +81,21 @@ class Game():
                         if player.shield > 0:
                             player.shield -= 1
                             asteroid.kill()
+                            player.gain_exp()
                             shielded_until = pygame.time.get_ticks() + constants.SHIELD_DURATION
                             player.shielded = True
 
                         elif player.health > 1:
                             player.health -= 1
                             asteroid.kill()
+
                         else:
                             restart = await gameMenu.show_game_over(self)
-                            if restart == True:
-                                break  # Break inner loop to restart
-                            else:
-                                return 
 
                     for shot in list(shots): #+ weapon_manager.get_all_shots():
                         if hasattr(shot, "is_active") and not shot.is_active():
                             continue
+
                         if asteroid.collide(shot):
                             asteroid.kill()
                             player.gain_score()
@@ -105,6 +104,7 @@ class Game():
                             else:
                                 shot.kill()
                             player.gain_exp()
+
                 self.screen.fill(0)
                 self.actual_screen.fill(0)
 
@@ -113,15 +113,14 @@ class Game():
                 
                 gameMenu.update(self.screen, player)
 
-
                 if player.level > level:
                     level = player.level
                     options, rects = gameMenu.show_upgrade_menu(self)
                     await gameMenu.handle_upgrade_selection(rects, options, player)
 
-                    asteroid_field.modifier = (1 + (player.level / 10)) * (difficulty + 1)
-
+                    asteroid_field.modifier = (1 + (player.level / 10)) * ((difficulty + 1) * 1.2)
                     Clock.tick()
+
                 weapon_manager.update(player, self.screen, dt)
                 self.actual_screen.blit(pygame.transform.scale(self.screen, self.actual_screen.get_rect().size), (0, 0))
                 dt = Clock.tick(120) / 1000
