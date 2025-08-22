@@ -51,8 +51,7 @@ class Menu(pygame.sprite.Sprite):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for i, rect in enumerate(rects):
                         if rect.collidepoint(event.pos):
-                            difficulty_options[i]
-                            return True
+                            return difficulty_options[i]
                 elif event.type == pygame.KEYDOWN:
                     match event.key:
                         case pygame.K_ESCAPE:
