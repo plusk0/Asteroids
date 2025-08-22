@@ -118,7 +118,8 @@ class Game():
                 await asyncio.sleep(0)
 
                 pygame.display.flip()
-            await asyncio.sleep(0)
             
-
-asyncio.run(Game.main(Game()))
+        
+if __name__=="__main__":
+    g = Game()
+    asyncio.run(g.main())           
