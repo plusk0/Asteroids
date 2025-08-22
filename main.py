@@ -9,21 +9,17 @@ from shot import Shot
 
 async def main():
     
-    pygame.init()
-    Menu.update_scale()
-    screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
-    pygame.display.set_caption(f"Space Game - Version 0.0.0.69") 
-    difficulty = 0
-
     # Outer loop for restarting the game
     while True: 
+        pygame.init()
+        Menu.update_scale()
+        screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
+        pygame.display.set_caption(f"Space Game - Version 0.0.0.69") 
+        difficulty = 0
 
-        
         Clock = pygame.time.Clock()
         gameMenu = Menu()
         
-        
-
         updatable = pygame.sprite.Group()
         drawable = pygame.sprite.Group()
         asteroids = pygame.sprite.Group()
@@ -121,7 +117,7 @@ async def main():
 
                 Clock.tick()
             
-            
+            actual_screen.blit(pygame.transform.scale(screen, screen.get_rect().size), (0, 0))
             dt = Clock.tick(120) / 1000
             await asyncio.sleep(0)
 

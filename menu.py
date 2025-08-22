@@ -8,28 +8,20 @@ class Menu(pygame.sprite.Sprite):
     
     
     def __init__(self):
-        self.fontsize = 32 * int(constants.SCALE)
+        self.fontsize = 32
         self.font = pygame.font.SysFont(None, self.fontsize)
         self.background_color = (0, 0, 0)
 
     @staticmethod  # I'm aware updating constants like this is some mad spaghetti code, but it mostly works for now
     def update_scale():
         width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
-        constants.SCALE = width / constants.SCREEN_WIDTH
-
-        constants.ASTEROID_MAX_RADIUS = constants.ASTEROID_MAX_RADIUS * constants.SCALE
-        constants.ASTEROID_MIN_RADIUS = constants.ASTEROID_MIN_RADIUS * constants.SCALE
-        constants.PLAYER_RADIUS = constants.PLAYER_RADIUS * constants.SCALE
-        constants.SHOT_RADIUS = constants.SHOT_RADIUS * constants.SCALE
-
         constants.SCREEN_HEIGHT = height
         constants.SCREEN_WIDTH = width
 
-        constants.PLAYER_SPEED = constants.PLAYER_SPEED * constants.SCALE
-        constants.SHOT_SPEED = constants.PLAYER_SPEED * constants.SCALE
+            
 
-    def select_difficulty(self, screen): #WIP remove redundant functions (upgrade/difficulty)
-        difficulty_options = ["easy", "medium", "nightmare"]
+    def select_difficulty(self, screen): #WIP remove redundant functions (upgrade & difficulty)
+        difficulty_options = [(0 , "easy"), (1 , "medium"),(2 , "nightmare")]
         rects = []
         menu_width = constants.SCREEN_WIDTH / 1.5
         menu_height = constants.SCREEN_HEIGHT / 4
@@ -45,8 +37,8 @@ class Menu(pygame.sprite.Sprite):
 
             text1 = font1.render(f"Press {i + 1}:", True, (255, 255, 255))
             text2 = font2.render(f"{difficulty}", True, (255, 255, 255))
-            screen.blit(text1, (rect.x + 20 * constants.SCALE, (rect.y + menu_height / 3) - self.fontsize / 2))
-            screen.blit(text2, (rect.x + 20 * constants.SCALE, (rect.y + menu_height / 3) + self.fontsize / 2))
+            screen.blit(text1, (rect.x + 20, (rect.y + menu_height / 3) - self.fontsize / 2))
+            screen.blit(text2, (rect.x + 20, (rect.y + menu_height / 3) + self.fontsize / 2))
         
         pygame.display.flip()
         return difficulty_options, rects
@@ -69,6 +61,7 @@ class Menu(pygame.sprite.Sprite):
                             return difficulty_options[1]
                         case pygame.K_3:
                             return difficulty_options[2]
+
 
                 elif event.type == pygame.QUIT:
                     pygame.quit()
@@ -94,8 +87,8 @@ class Menu(pygame.sprite.Sprite):
 
             text1 = font1.render(f"Press {i + 1}:", True, (255, 255, 255))
             text2 = font2.render(f"{upgrade}", True, (255, 255, 255))
-            screen.blit(text1, (rect.x + 20 * constants.SCALE, (rect.y + menu_height / 3) - self.fontsize / 2))
-            screen.blit(text2, (rect.x + 20 * constants.SCALE, (rect.y + menu_height / 3) + self.fontsize / 2))
+            screen.blit(text1, (rect.x + 20, (rect.y + menu_height / 3) - self.fontsize / 2))
+            screen.blit(text2, (rect.x + 20, (rect.y + menu_height / 3) + self.fontsize / 2))
 
         pygame.display.flip()
         return upgrade_options, rects
@@ -127,36 +120,34 @@ class Menu(pygame.sprite.Sprite):
                     exit()
             await asyncio.sleep(0)  # Yield control to the browser
             
-                
-
 
     def draw(self, screen, player):
 
         for i in range(player.max_health):
-            corner_pos = pygame.Vector2((20 + (20*i)) * constants.SCALE, (20 + (20*i)) * constants.SCALE)
+            corner_pos = pygame.Vector2((20 + (20*i)), (20 + (20*i)))
             points = [corner_pos + p for p in player.icon_shape]
             pygame.draw.polygon(screen, [255, 200, 200], points)
 
         for i in range(player.health):
-            corner_pos = pygame.Vector2((20 + (20*i)) * constants.SCALE, (20 + (20*i)) * constants.SCALE)
+            corner_pos = pygame.Vector2((20 + (20*i)), (20 + (20*i)))
             points = [corner_pos + p for p in player.icon_shape]
             pygame.draw.polygon(screen, [255, 0, 0], points)
 
         for i in range(player.shield):
-            corner_pos = pygame.Vector2(((20  + (20*i)) * constants.SCALE), ((50  + (20*i)) * constants.SCALE))
+            corner_pos = pygame.Vector2(((20  + (20*i))), ((50  + (20*i))))
             points = [corner_pos + p for p in player.icon_shape]
             pygame.draw.polygon(screen, [20, 180, 180], points)
 
-        font = pygame.font.SysFont(None, 28 * int(constants.SCALE))
+        font = pygame.font.SysFont(None, 28)
         text = font.render(f"Score {player.score}", True, (255, 255, 255))
-        screen.blit(text, (constants.SCREEN_WIDTH / 2, 10 * constants.SCALE))
+        screen.blit(text, (constants.SCREEN_WIDTH / 2, 10))
 
     def update(self, screen, player):
         self.draw(screen, player)
 
     @staticmethod
     async def show_game_over(screen):
-        font = pygame.font.SysFont(None, 48 * int(constants.SCALE))
+        font = pygame.font.SysFont(None, 48)
         text = font.render("GAME OVER!", True, (255, 0, 0))
         screen.fill((0, 0, 0))
         screen.blit(text, (constants.SCREEN_WIDTH // 2 - text.get_width() // 2, constants.SCREEN_HEIGHT // 2 - text.get_height() // 2))
