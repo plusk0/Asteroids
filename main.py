@@ -16,7 +16,6 @@ class Game():
         self.difficulty = 0
 
     async def main(self):
-
         # Outer loop for restarting the game
         while True: 
             
@@ -119,6 +118,7 @@ class Game():
                 await asyncio.sleep(0)
 
                 pygame.display.flip()
+            await asyncio.sleep(0)
             
 
 asyncio.run(Game.main(Game()))
