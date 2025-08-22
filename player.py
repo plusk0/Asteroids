@@ -27,7 +27,7 @@ class Player(CircleShape):
         self.max_health = constants.PLAYER_HEALTH
         self.health = self.max_health
 
-        self.shots = constants.PLAYER_SHOT_NO
+        self.shot_no = constants.PLAYER_SHOT_NO
         self.piercing = constants.PLAYER_SHOT_PIERCE
         self.shot_radius = constants.SHOT_RADIUS
         self.shot_cooldown = constants.PLAYER_SHOOT_COOLDOWN
@@ -56,7 +56,7 @@ class Player(CircleShape):
         return [a, b, c]
 
     def gain_exp(self):
-        self.exp += 10
+        self.exp += 5
         if self.exp >= 10 * (self.level ** 2):
             self.level_up()
     
@@ -70,7 +70,7 @@ class Player(CircleShape):
     def apply_upgrade(self, upgrade):
         match upgrade:
             case "Multi Shot":
-                self.shots += 1
+                self.shot_no += 1
             case "Shield":
                 self.shield += 1
             case "Extra Life":
@@ -119,18 +119,18 @@ class Player(CircleShape):
             self.shoot()
 
     def shoot(self):
-        if self.shots == 1:
+        if self.shot_no == 1:
             bullet = Shot(self.position[0],self.position[1],self.shot_radius)
             bullet.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * self.shot_speed
             bullet.piercing = self.piercing
             self.current_cooldown = self.shot_cooldown
         else:
-            for i in range(self.shots):
-                angle_offset = (i - (self.shots - 1) / 2) * 10
+            for i in range(self.shot_no):
+                angle_offset = (i - (self.shot_no - 1) / 2) * 10
                 bullet = Shot(self.position[0], self.position[1], self.shot_radius)
                 bullet.velocity = pygame.Vector2(0, 1).rotate(self.rotation + angle_offset) * self.shot_speed
                 bullet.piercing = self.piercing
-                self.current_cooldown = self.shot_cooldown + 1 * (self.shots / 10)
+                self.current_cooldown = self.shot_cooldown + 1 * (self.shot_no / 10)
 
     def rotate(self, dt):
         self.rotation += dt * constants.PLAYER_TURN_SPEED

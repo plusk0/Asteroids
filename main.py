@@ -27,8 +27,10 @@ class Game():
 
             Clock = pygame.time.Clock()
             gameMenu = Menu()
+
             updatable = pygame.sprite.Group()
             drawable = pygame.sprite.Group()
+
             asteroids = pygame.sprite.Group()
             shots = pygame.sprite.Group()
             weapons = pygame.sprite.Group()
@@ -62,13 +64,13 @@ class Game():
                         return
 
                 updatable.update(dt)
-                weapon_manager.update(player, self.screen, dt)
+
+                
 
                 if player.shielded and pygame.time.get_ticks() > shielded_until:
                     player.shielded = False
 
                 for asteroid in asteroids:
-                    
                     if asteroid.collide(player):
                         if player.shielded and pygame.time.get_ticks() < shielded_until:
                             asteroid.kill()
@@ -92,10 +94,9 @@ class Game():
                             else:
                                 return 
 
-                    for shot in list(shots) + weapon_manager.get_all_shots():
+                    for shot in list(shots): #+ weapon_manager.get_all_shots():
                         if hasattr(shot, "is_active") and not shot.is_active():
                             continue
-
                         if asteroid.collide(shot):
                             asteroid.kill()
                             player.gain_score()
@@ -105,14 +106,13 @@ class Game():
                                 shot.kill()
                             player.gain_exp()
                 self.screen.fill(0)
+                self.actual_screen.fill(0)
 
                 for entity in drawable:
                     entity.draw(self.screen)
                 
                 gameMenu.update(self.screen, player)
 
-                for weapon in weapons:
-                    weapon.update(player, self.screen, dt)
 
                 if player.level > level:
                     level = player.level
@@ -122,7 +122,7 @@ class Game():
                     asteroid_field.modifier = (1 + (player.level / 10)) * (difficulty + 1)
 
                     Clock.tick()
-                
+                weapon_manager.update(player, self.screen, dt)
                 self.actual_screen.blit(pygame.transform.scale(self.screen, self.actual_screen.get_rect().size), (0, 0))
                 dt = Clock.tick(120) / 1000
                 await asyncio.sleep(0)

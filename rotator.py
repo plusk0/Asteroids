@@ -2,7 +2,6 @@ import constants
 from circleshape import *
 from shot import Shot
 from weapon import Weapon
-from shot import Shot
 
 class RotatorShot(Shot):
     def __init__(self, x, y, radius, level, rotator):
@@ -47,8 +46,6 @@ class Rotator(Weapon):
 
         self.shots = []
 
-        self.apply_upgrade()
-
     def apply_upgrade(self):
         self.piercing = self.player.piercing
 
@@ -61,6 +58,11 @@ class Rotator(Weapon):
         if self.count > 10:
             self.count = 10
 
+    def get_shots(self):
+        if self.shots != None:
+            return self.shots
+        else:
+            return None
 
     def rotate(self, angle):
         self.rotation += angle

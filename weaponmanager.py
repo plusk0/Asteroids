@@ -1,15 +1,19 @@
 import pygame
 from rotator import Rotator
+from emp import Emp
 
 class WeaponManager:
     def __init__(self, player):
         self.player = player
         self.weapons = []
         self.add_default_weapons()
+        self.shots = []
 
     def add_default_weapons(self):
         Rotate = Rotator(self.player)
+        boom = Emp(self.player)
         self.weapons.append(Rotate)
+        self.weapons.append(boom)
         #Add other weapons here
         pass
     
@@ -25,11 +29,11 @@ class WeaponManager:
         return False
 
     def get_all_shots(self):
-        shots = []
         for weapon in self.weapons:
-            if hasattr(weapon, "shots"):
-                shots.extend(weapon.shots)
-        return shots
+            weapon_shots = weapon.get_shots()
+            if weapon_shots != None:
+                self.shots.extend(weapon_shots)        
+        return self.shots
 
 
 

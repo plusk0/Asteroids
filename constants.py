@@ -14,7 +14,7 @@ PLAYER_SHOOT_COOLDOWN = 1
 PLAYER_SHOT_NO = 1
 PLAYER_SHOT_PIERCE = 0
 
-WEAPONS = ["Rotator", "Laser"]
+WEAPONS = ["Rotator", "EMP"]
 UPGRADES = ["Multi Shot", "Shield", "Bigger Bullets", "Extra Life", "Piercing Bullets", "Rapid Fire"]
 
 
@@ -32,4 +32,6 @@ ASTEROID_MAX_RADIUS = ASTEROID_MIN_RADIUS * ASTEROID_KINDS
 ROTATOR_SPEED = 300
 ROTATOR_RADIUS = 10
 ROTATOR_RADIUS = 30
+
+EMP_RADIUS = 100
 
