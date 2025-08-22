@@ -38,8 +38,8 @@ class Rotator(Weapon):
 
         self.player = player
         self.rotation = 0
-        self.radius = constants.ROTATOR_RADIUS * (constants.SCALE / 5 )
-        self.distance = constants.ROTATOR_RADIUS * (constants.SCALE / 2)
+        self.radius = constants.ROTATOR_RADIUS / 5
+        self.distance = constants.ROTATOR_RADIUS * 0.7
 
         self.level = 0
         self.count = 0

@@ -9,6 +9,13 @@ from shot import Shot
 
 async def main():
     
+    pygame.init()
+    Menu.update_scale()
+    actual_screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT), pygame.RESIZABLE)
+    screen = actual_screen.copy()
+    pygame.display.set_caption(f"Space Game - Version 0.0.0.69") 
+    difficulty = 0
+
     # Outer loop for restarting the game
     while True: 
         pygame.init()
@@ -19,7 +26,6 @@ async def main():
 
         Clock = pygame.time.Clock()
         gameMenu = Menu()
-        
         updatable = pygame.sprite.Group()
         drawable = pygame.sprite.Group()
         asteroids = pygame.sprite.Group()
