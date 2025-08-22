@@ -20,7 +20,8 @@ class Menu(pygame.sprite.Sprite):
 
             
 
-    def select_difficulty(self, screen): #WIP remove redundant functions (upgrade & difficulty)
+    def select_difficulty(self, Game): #WIP remove redundant functions (upgrade & difficulty)
+        screen = Game.screen
         difficulty_options = [(0 , "easy"), (1 , "medium"),(2 , "nightmare")]
         rects = []
         menu_width = constants.SCREEN_WIDTH / 1.5
@@ -36,10 +37,10 @@ class Menu(pygame.sprite.Sprite):
             font2 = pygame.font.SysFont(None, self.fontsize)
 
             text1 = font1.render(f"Press {i + 1}:", True, (255, 255, 255))
-            text2 = font2.render(f"{difficulty}", True, (255, 255, 255))
+            text2 = font2.render(f"{difficulty[1]}", True, (255, 255, 255))
             screen.blit(text1, (rect.x + 20, (rect.y + menu_height / 3) - self.fontsize / 2))
             screen.blit(text2, (rect.x + 20, (rect.y + menu_height / 3) + self.fontsize / 2))
-        
+        Game.actual_screen.blit(pygame.transform.scale(screen, screen.get_rect().size), (0, 0))
         pygame.display.flip()
         return difficulty_options, rects
     
@@ -61,8 +62,6 @@ class Menu(pygame.sprite.Sprite):
                             return difficulty_options[1]
                         case pygame.K_3:
                             return difficulty_options[2]
-
-
                 elif event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
@@ -70,7 +69,8 @@ class Menu(pygame.sprite.Sprite):
     
 
 
-    def show_upgrade_menu(self, screen):
+    def show_upgrade_menu(self, Game):
+        screen = Game.screen
         upgrade_options = random.sample(constants.UPGRADES + constants.WEAPONS, 3)
         rects = []
         menu_width = constants.SCREEN_WIDTH / 1.5
@@ -89,11 +89,12 @@ class Menu(pygame.sprite.Sprite):
             text2 = font2.render(f"{upgrade}", True, (255, 255, 255))
             screen.blit(text1, (rect.x + 20, (rect.y + menu_height / 3) - self.fontsize / 2))
             screen.blit(text2, (rect.x + 20, (rect.y + menu_height / 3) + self.fontsize / 2))
-
+        Game.actual_screen.blit(pygame.transform.scale(screen, screen.get_rect().size), (0, 0))
         pygame.display.flip()
         return upgrade_options, rects
 
     async def handle_upgrade_selection(self, rects, upgrade_options, player):
+        
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
