@@ -145,6 +145,7 @@ class Menu(pygame.sprite.Sprite):
         screen.fill((0, 0, 0))
         screen.blit(text, (constants.SCREEN_WIDTH // 2 - text.get_width() // 2, constants.SCREEN_HEIGHT // 2 - text.get_height() // 2))
         Game.actual_screen.blit(pygame.transform.scale(Game.screen, Game.actual_screen.get_rect().size), (0, 0))
+        await asyncio.sleep(0)
         pygame.display.flip()
 
         while True:
