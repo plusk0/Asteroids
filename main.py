@@ -7,17 +7,13 @@ from asteroidfield import AsteroidField
 from shot import Shot
 
 class Game():
-    
+
     def __init__(self):
         pygame.init()
         self.actual_screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT), pygame.RESIZABLE)
-        Menu.update_scale()
         self.screen = self.actual_screen.copy()
         pygame.display.set_caption(f"Space Game - Version 0.0.0.69") 
-
         self.difficulty = 0
-
-
 
     async def main(self):
 
@@ -33,7 +29,6 @@ class Game():
 
             asteroids = pygame.sprite.Group()
             shots = pygame.sprite.Group()
-            weapons = pygame.sprite.Group()
 
             Player.containers = (updatable, drawable)
             Asteroid.containers = (asteroids, updatable, drawable)
@@ -51,7 +46,7 @@ class Game():
             restart = False
 
             difficulty_options, rects =  gameMenu.select_difficulty(self)
-            difficulty, other = await gameMenu.handle_difficulty_selection(rects, difficulty_options)
+            difficulty, foo = await gameMenu.handle_difficulty_selection(rects, difficulty_options)
             
 
             # --- Main game loop ---
@@ -64,8 +59,6 @@ class Game():
                         return
 
                 updatable.update(dt)
-
-                
 
                 if player.shielded and pygame.time.get_ticks() > shielded_until:
                     player.shielded = False
@@ -92,7 +85,7 @@ class Game():
                         else:
                             restart = await gameMenu.show_game_over(self)
 
-                    for shot in list(shots): #+ weapon_manager.get_all_shots():
+                    for shot in list(shots):
                         if hasattr(shot, "is_active") and not shot.is_active():
                             continue
 
@@ -117,8 +110,7 @@ class Game():
                     level = player.level
                     options, rects = gameMenu.show_upgrade_menu(self)
                     await gameMenu.handle_upgrade_selection(rects, options, player)
-
-                    asteroid_field.modifier = (1 + (player.level / 10)) * ((difficulty + 1) * 1.2)
+                    asteroid_field.increase_difficulty(level, difficulty)
                     Clock.tick()
 
                 weapon_manager.update(player, self.screen, dt)

@@ -34,6 +34,9 @@ class AsteroidField(pygame.sprite.Sprite):
         self.modifier = 1
         print(constants.SCREEN_HEIGHT, constants.SCREEN_WIDTH)
 
+    def increase_difficulty(self, level, difficulty):
+        self.modifier = (1 + (level / 20)) * (difficulty + 1)
+
     def spawn(self, radius, position, velocity):
         asteroid = Asteroid(position.x, position.y, radius)
         asteroid.velocity = velocity * self.modifier

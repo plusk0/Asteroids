@@ -12,15 +12,6 @@ class Menu(pygame.sprite.Sprite):
         self.font = pygame.font.SysFont(None, self.fontsize)
         self.background_color = (0, 0, 0)
 
-    @staticmethod  # I'm aware updating constants like this is some mad spaghetti code, but it mostly works for now
-    def update_scale():
-        pass
-        #width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
-        #constants.SCREEN_HEIGHT = height
-        #constants.SCREEN_WIDTH = width
-
-            
-
     def select_difficulty(self, Game): #WIP remove redundant functions (upgrade & difficulty)
         screen = Game.screen
         difficulty_options = [(0 , "easy"), (1 , "medium"),(2 , "nightmare")]
@@ -89,7 +80,7 @@ class Menu(pygame.sprite.Sprite):
             text2 = font2.render(f"{upgrade}", True, (255, 255, 255))
             screen.blit(text1, (rect.x + 20, (rect.y + menu_height / 3) - self.fontsize / 2))
             screen.blit(text2, (rect.x + 20, (rect.y + menu_height / 3) + self.fontsize / 2))
-        Game.actual_screen.blit(pygame.transform.scale(screen, screen.get_rect().size), (0, 0))
+        Game.actual_screen.blit(pygame.transform.scale(Game.screen, Game.actual_screen.get_rect().size), (0, 0))
         pygame.display.flip()
         return upgrade_options, rects
 
