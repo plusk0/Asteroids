@@ -38,13 +38,13 @@ class Game():
             AsteroidField.containers = (updatable)
             Shot.containers = (shots, updatable, drawable)
 
-        dt = 0
-        shielded_until = 0
-        level = 1
+            dt = 0
+            shielded_until = 0
+            level = 1
 
-        player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
-        weapon_manager = player.weapon_manager
-        asteroid_field = AsteroidField()
+            player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
+            weapon_manager = player.weapon_manager
+            asteroid_field = AsteroidField()
 
             restart = False
 
