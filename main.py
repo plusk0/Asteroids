@@ -5,6 +5,7 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
+from laser import Laser_effect
 
 class Game():
 
@@ -12,6 +13,7 @@ class Game():
         pygame.init()
         self.actual_screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT), pygame.RESIZABLE)
         self.screen = self.actual_screen.copy()
+        
         pygame.display.set_caption(f"Space Game - Version 0.0.0.69") 
         self.difficulty = 0
 
@@ -29,10 +31,13 @@ class Game():
             asteroids = pygame.sprite.Group()
             shots = pygame.sprite.Group()
 
+            effects = pygame.sprite.Group()
+
             Player.containers = (updatable, drawable)
             Asteroid.containers = (asteroids, updatable, drawable)
             AsteroidField.containers = (updatable)
             Shot.containers = (shots, updatable, drawable)
+            Laser_effect.containers = (effects)
 
             dt = 0
             shielded_until = 0
@@ -46,8 +51,7 @@ class Game():
 
             difficulty_options, rects =  gameMenu.select_difficulty(self)
             difficulty, foo = await gameMenu.handle_difficulty_selection(rects, difficulty_options)
-            
-
+            player.screen = self.screen
             # --- Main game loop ---
             while True:
                 if restart == True:
@@ -94,8 +98,16 @@ class Game():
                             if shot.piercing > 0:
                                 shot.piercing -= 1
                             else:
+                                if hasattr(shot, "laser"):
+                                    weapon_manager.laser.apply_aftereffect(shot)
                                 shot.kill()
                             player.gain_exp()
+
+                    for effect in weapon_manager.get_effects():
+                        if effect.check_kill_dist(asteroid):
+                            asteroid.kill()
+                            player.gain_score()
+
 
                 self.screen.fill(0)
                 self.actual_screen.fill(0)

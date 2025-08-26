@@ -11,6 +11,8 @@ class Player(CircleShape):
         self.x = x
         self.y = y
 
+       # self.player = player
+
         self.sprites = []
         self.sprites.append(pygame.image.load("sprites/sprite_0.png").convert_alpha())
         self.sprites.append(pygame.image.load("sprites/sprite_1.png").convert_alpha())
@@ -33,6 +35,9 @@ class Player(CircleShape):
         self.shot_cooldown = constants.PLAYER_SHOOT_COOLDOWN
         self.shot_speed = constants.SHOT_SPEED
         self.current_cooldown = self.shot_cooldown
+        self.laser = False
+
+        self.screen = None # for testing only
 
         self.icon_shape = self._compute_icon_shape()
 
@@ -119,18 +124,7 @@ class Player(CircleShape):
             self.shoot()
 
     def shoot(self):
-        if self.shot_no == 1:
-            bullet = Shot(self.position[0],self.position[1],self.shot_radius)
-            bullet.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * self.shot_speed
-            bullet.piercing = self.piercing
-            self.current_cooldown = self.shot_cooldown
-        else:
-            for i in range(self.shot_no):
-                angle_offset = (i - (self.shot_no - 1) / 2) * 10
-                bullet = Shot(self.position[0], self.position[1], self.shot_radius)
-                bullet.velocity = pygame.Vector2(0, 1).rotate(self.rotation + angle_offset) * self.shot_speed
-                bullet.piercing = self.piercing
-                self.current_cooldown = self.shot_cooldown + 1 * (self.shot_no / 10)
+        self.weapon_manager.shoot()
 
     def rotate(self, dt):
         self.rotation += dt * constants.PLAYER_TURN_SPEED

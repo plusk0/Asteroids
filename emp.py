@@ -65,7 +65,7 @@ class Emp(Weapon):
         if self.radius < self.max_radius:
             self.radius = (self.radius + 400 * dt) 
             self.shot.radius = self.radius
-            if self.radius > self.max_radius:
+            if self.radius >= self.max_radius:
                 self.radius = 0
                 self.kill()
         pygame.draw.circle(screen, [20,55,55], self.shot.position, self.radius)

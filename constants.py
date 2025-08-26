@@ -14,7 +14,7 @@ PLAYER_SHOOT_COOLDOWN = 1
 PLAYER_SHOT_NO = 1
 PLAYER_SHOT_PIERCE = 0
 
-WEAPONS = ["Rotator", "EMP"]
+WEAPONS = ["Rotator", "EMP", "Laser"]
 UPGRADES = ["Multi Shot", "Shield", "Bigger Bullets", "Extra Life", "Piercing Bullets", "Rapid Fire"]
 
 SHOT_RADIUS = 7
@@ -33,3 +33,5 @@ ROTATOR_RADIUS = 30
 
 EMP_RADIUS = 100
 
+LASER_WIDTH = 50
+LASER_SPEED_MULT = 30

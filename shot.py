@@ -19,3 +19,4 @@ class Shot(CircleShape):
             self.kill()
 
 
+
