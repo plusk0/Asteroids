@@ -38,7 +38,7 @@ class Game():
             AsteroidField.containers = (updatable)
             Shot.containers = (shots, updatable, drawable)
             Laser_effect.containers = (effects)
-
+            
             dt = 0
             shielded_until = 0
             level = 1
@@ -46,6 +46,7 @@ class Game():
             player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
             weapon_manager = player.weapon_manager
             asteroid_field = AsteroidField()
+            print(len(shots))
 
             restart = False
 
@@ -63,6 +64,7 @@ class Game():
 
                 updatable.update(dt)
 
+                
                 if player.shielded and pygame.time.get_ticks() > shielded_until:
                     player.shielded = False
 
@@ -107,6 +109,7 @@ class Game():
                         if effect.check_kill_dist(asteroid):
                             asteroid.kill()
                             player.gain_score()
+                            player.gain_exp()
 
 
                 self.screen.fill(0)

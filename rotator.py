@@ -54,6 +54,7 @@ class Rotator(Weapon):
 
         shot = RotatorShot(self.player.position.x, self.player.position.y, self.radius, self.level, self)
         self.shots.append(shot)
+        print(len(self.shots))
 
         if self.count > 10:
             self.count = 10

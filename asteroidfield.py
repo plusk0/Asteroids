@@ -32,7 +32,6 @@ class AsteroidField(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.spawn_timer = 0.0
         self.modifier = 1
-        print(constants.SCREEN_HEIGHT, constants.SCREEN_WIDTH)
 
     def increase_difficulty(self, level, difficulty):
         self.modifier = (1 + (level / 20)) * (difficulty + 1)

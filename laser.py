@@ -58,9 +58,7 @@ class Laser_Shot(Shot):
         self.position.x < -constants.SCREEN_WIDTH or 
         self.position.x > constants.SCREEN_WIDTH):
             self.kill()
-            self.Weapon.apply_aftereffect(self)
-
-                                    
+            self.Weapon.apply_aftereffect(self)                     
 
 class Laser_effect():
     def __init__(self, player, Weapon, dest):
@@ -96,17 +94,16 @@ class Laser_effect():
         line_len = line_vec.length()
         if line_len == 0:
             return False 
-
         to_center = center - start
 
-        # Project to_center onto line_vec, clamp to segment
+        # Project to_center onto line_vec, clamp to segment - 
+        # AI generated calculation, dont ask me which kind of geometric dot magic is going on here
         t = max(0, min(1, to_center.dot(line_vec) / (line_len ** 2)))
+        
         closest = start + line_vec * t
 
-        # Perpendicular distance from asteroid center to closest point on line
         dist = center.distance_to(closest)
 
-        # Check collision
         return dist < (self.width / 2 + other.radius)
 
 

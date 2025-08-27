@@ -9,17 +9,16 @@ class Emp(Weapon):
         super().__init__(player)
         self.piercing = 3
         self.disabled_until = 0
-        self.level = 1
+        self.level = 0
         self.active = True
         self.player = player
 
         self.max_radius = constants.EMP_RADIUS
         self.radius = 0
-        self.shot = Emp_Shot(self.player, self)
         self.shots = []
-        self.shots.append(self.shot)
-
-        self.apply_upgrade()
+        self.shot = None
+        
+        #self.apply_upgrade()
 
     def get_shots(self):
         if self.shots != None and self.is_active() == True:
@@ -45,6 +44,10 @@ class Emp(Weapon):
         pass
 
     def apply_upgrade(self):
+        if self.level == 0:
+            self.shot = Emp_Shot(self.player, self)
+            self.shots.append(self.shot)
+
         self.piercing = self.player.piercing
         self.level += 1
         self.max_radius *= 1.3
