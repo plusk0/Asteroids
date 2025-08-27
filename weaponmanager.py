@@ -48,7 +48,7 @@ class WeaponManager:
     def shoot(self):
             for i in range(self.player.shot_no):
                 angle_offset = (i - (self.player.shot_no - 1) / 2) * 10
-                if self.laser == None:
+                if self.player.laser == False:
                     bullet = Shot(self.player.position[0], self.player.position[1], self.player.shot_radius)
                     bullet.velocity = pygame.Vector2(0, 1).rotate(self.player.rotation + angle_offset) * self.player.shot_speed
                 else:

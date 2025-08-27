@@ -22,10 +22,11 @@ class Laser(Weapon):
 
         self.aftereffect = 500
 
-        self.level = 1
+        self.level = 0
         self.piercing = 3
 
     def apply_upgrade(self):
+        self.player.laser = True
         self.level += 1
         self.piercing += 3
         self.width += 10
