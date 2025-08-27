@@ -12,9 +12,8 @@ class Laser(Weapon):
         self.player = player
         self.position = player.position
         self.forward = player.rotation
-        self.max_width = 100
+        self.max_width = constants.LASER_WIDTH
         self.width = self.max_width
-
 
         self.cooldown = 0
         self.shot = []
@@ -43,7 +42,7 @@ class Laser(Weapon):
 
 class Laser_Shot(Shot):
     def __init__(self, player, Weapon):
-        super().__init__(player.position.x, player.position.y, player.shot_radius / 2)
+        super().__init__(player.position.x, player.position.y, Weapon.max_width / 5)
         self.Weapon = Weapon
         self.piercing = Weapon.piercing
         self.player = player
@@ -69,11 +68,10 @@ class Laser_effect():
         self.Weapon = Weapon
         self.source = player.position.copy()
         self.dest = dest
-        self.max_width = Weapon.width
+        self.max_width = self.Weapon.width
         self.width = self.max_width
         self.shot_time = pygame.time.get_ticks()
         self.valid_until = self.shot_time + Weapon.aftereffect
-        print(self.valid_until, self.shot_time)
 
     def draw(self, screen):
         if self.valid_until > pygame.time.get_ticks():
@@ -82,7 +80,7 @@ class Laser_effect():
 
     def update(self):
         if self.valid_until > pygame.time.get_ticks():
-            self.width = pygame.math.lerp(self.max_width, 0, (pygame.time.get_ticks() / self.valid_until))
+            self.width = pygame.math.lerp(0, self.max_width, (self.valid_until - pygame.time.get_ticks()) / self.Weapon.aftereffect)
         else:
             if self in self.Weapon.effects:
                 self.Weapon.effects.remove(self)

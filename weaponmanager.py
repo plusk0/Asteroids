@@ -56,6 +56,8 @@ class WeaponManager:
                     bullet.velocity = pygame.Vector2(0, 1).rotate(self.player.rotation + angle_offset) * self.player.shot_speed * constants.LASER_SPEED_MULT
                 bullet.piercing = self.player.piercing
                 self.player.current_cooldown = self.player.shot_cooldown + 1 * (self.player.shot_no / 10)
+                if self.player.laser == True:
+                    self.player.current_cooldown *= 2
 
 
 
