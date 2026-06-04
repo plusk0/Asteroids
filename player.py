@@ -14,9 +14,16 @@ class Player(CircleShape):
        # self.player = player
 
         self.sprites = []
-        self.sprites.append(pygame.image.load("sprites/sprite_0.png").convert_alpha())
-        self.sprites.append(pygame.image.load("sprites/sprite_1.png").convert_alpha())
-        self.sprites.append(pygame.image.load("sprites/sprite_2.png").convert_alpha())
+        try:
+            self.sprites.append(pygame.image.load("sprites/sprite_0.png").convert_alpha())
+            self.sprites.append(pygame.image.load("sprites/sprite_1.png").convert_alpha())
+            self.sprites.append(pygame.image.load("sprites/sprite_2.png").convert_alpha())
+        except:
+            # If sprites can't be loaded, create placeholder surfaces
+            print("Warning: Could not load player sprites, using placeholder")
+            placeholder = pygame.Surface((40, 40), pygame.SRCALPHA)
+            pygame.draw.circle(placeholder, (255, 255, 255), (20, 20), 20)
+            self.sprites = [placeholder, placeholder, placeholder]
         self.currentsprite = 0
         
         super().__init__(x, y, constants.PLAYER_RADIUS)
@@ -92,19 +99,27 @@ class Player(CircleShape):
         return
 
     def draw (self, screen):
-        if self.shielded == True:
-            pygame.draw.circle(screen, [180, 20, 20], self.position, self.radius * 2)
+        # Draw shield effects
+        if self.shielded:
+            pygame.draw.circle(screen, [180, 20, 20], self.position, self.radius * 2, 2)
 
         if self.shield > 0:
-            pygame.draw.circle(screen, [20, 180, 180], self.position, self.radius * 2)
+            pygame.draw.circle(screen, [20, 180, 180], self.position, self.radius * 2, 2)
 
-        self.currentsprite += 1
-        if self.currentsprite >= len(self.sprites):
-            self.currentsprite = 0
-        image = pygame.transform.rotate(self.sprites[self.currentsprite], -self.rotation + 180)
-        
-        screen.blit(image, self.position - pygame.Vector2(image.get_width() / 2, image.get_height() / 2))
-        #pygame.draw.polygon(screen, [255,255,255], self.triangle(), 2) # debugging triangle
+        # Draw player sprite with animation
+        if self.sprites and len(self.sprites) > 0:
+            self.currentsprite += 0.2
+            if self.currentsprite >= len(self.sprites):
+                self.currentsprite = 0
+            sprite_index = int(self.currentsprite)
+            image = pygame.transform.rotate(self.sprites[sprite_index], -self.rotation + 180)
+            
+            screen.blit(image, self.position - pygame.Vector2(image.get_width() / 2, image.get_height() / 2))
+        else:
+            # Fallback drawing if no sprites
+            pygame.draw.circle(screen, [255, 255, 255], self.position, self.radius)
+            # Draw triangle shape
+            pygame.draw.polygon(screen, [255, 255, 255], self.triangle(), 2)
 
     def update(self, dt):
         keys = pygame.key.get_pressed()

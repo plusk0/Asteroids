@@ -3,8 +3,7 @@ import constants
 
 from rotator import Rotator
 from emp import Emp
-
-from laser import Laser_Shot, Laser
+from laser import Laser, Laser_Shot
 from shot import Shot
 
 class WeaponManager:
@@ -22,8 +21,7 @@ class WeaponManager:
         self.weapons.append(self.boom)
         self.weapons.append(self.laser)
         #Add other weapons here
-        
-    
+
     def update(self, player, screen, dt):
         for weapon in self.weapons:
             weapon.update(player, screen, dt)
@@ -36,31 +34,37 @@ class WeaponManager:
         return False
 
     def get_all_shots(self):
+        """Get all active shots from all weapons"""
+        all_shots = []
         for weapon in self.weapons:
             weapon_shots = weapon.get_shots()
-            if weapon_shots != None:
-                self.shots.extend(weapon_shots)        
-        return self.shots
-    
+            if weapon_shots:
+                all_shots.extend(weapon_shots)
+        return all_shots
+
     def get_effects(self):
+        """Get all active effects from weapons"""
         return self.laser.effects
 
     def shoot(self):
+        """Handle player shooting - creates shots based on player's weapon setup"""
+        if self.player.laser:
+            # Use laser weapon for shooting
             for i in range(self.player.shot_no):
                 angle_offset = (i - (self.player.shot_no - 1) / 2) * 10
-                if self.player.laser == False:
-                    bullet = Shot(self.player.position[0], self.player.position[1], self.player.shot_radius)
-                    bullet.velocity = pygame.Vector2(0, 1).rotate(self.player.rotation + angle_offset) * self.player.shot_speed
-                else:
-                    bullet = Laser_Shot(self.player, self.laser)
-                    bullet.velocity = pygame.Vector2(0, 1).rotate(self.player.rotation + angle_offset) * self.player.shot_speed * constants.LASER_SPEED_MULT
+                bullet = Laser_Shot(self.player, self.laser)
+                bullet.velocity = pygame.Vector2(0, 1).rotate(self.player.rotation + angle_offset) * self.player.shot_speed * constants.LASER_SPEED_MULT
                 bullet.piercing = self.player.piercing
                 self.player.current_cooldown = self.player.shot_cooldown + 1 * (self.player.shot_no / 10)
-                if self.player.laser == True:
-                    self.player.current_cooldown *= 2
-
-
-
-
-
-
+                self.player.current_cooldown *= 2
+                # Add laser shot to the sprite groups if containers are set
+                if hasattr(bullet, 'add') and hasattr(Shot, 'containers') and Shot.containers:
+                    bullet.add(Shot.containers)
+        else:
+            # Use regular shots
+            for i in range(self.player.shot_no):
+                angle_offset = (i - (self.player.shot_no - 1) / 2) * 10
+                bullet = Shot(self.player.position.x, self.player.position.y, self.player.shot_radius)
+                bullet.velocity = pygame.Vector2(0, 1).rotate(self.player.rotation + angle_offset) * self.player.shot_speed
+                bullet.piercing = self.player.piercing
+                self.player.current_cooldown = self.player.shot_cooldown + 1 * (self.player.shot_no / 10)

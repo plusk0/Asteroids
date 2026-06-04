@@ -7,21 +7,21 @@ from asteroidfield import AsteroidField
 from shot import Shot
 from laser import Laser_effect
 
-class Game():
 
+class Game:
     def __init__(self):
         pygame.init()
-        self.actual_screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT), pygame.RESIZABLE)
+        self.actual_screen = pygame.display.set_mode(
+            (constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT), pygame.RESIZABLE
+        )
         self.screen = self.actual_screen.copy()
-        
-        pygame.display.set_caption(f"Space Game - Version 0.0.0.69") 
+
+        pygame.display.set_caption(f"Space Game - Version 0.0.0.69")
         self.difficulty = 0
 
     async def main(self):
         # Outer loop for restarting the game
-        while True: 
-            
-
+        while True:
             Clock = pygame.time.Clock()
             gameMenu = Menu()
 
@@ -33,12 +33,13 @@ class Game():
 
             effects = pygame.sprite.Group()
 
+            # Set containers FIRST, before creating any objects
             Player.containers = (updatable, drawable)
             Asteroid.containers = (asteroids, updatable, drawable)
-            AsteroidField.containers = (updatable)
+            AsteroidField.containers = updatable
             Shot.containers = (shots, updatable, drawable)
-            Laser_effect.containers = (effects)
-            
+            Laser_effect.containers = effects
+
             dt = 0
             shielded_until = 0
             level = 1
@@ -46,25 +47,40 @@ class Game():
             player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
             weapon_manager = player.weapon_manager
             asteroid_field = AsteroidField()
-            print(len(shots))
-
+            
+            # Set player screen reference
+            player.screen = self.screen
+            
             restart = False
 
-            difficulty_options, rects =  gameMenu.select_difficulty(self)
-            difficulty, foo = await gameMenu.handle_difficulty_selection(rects, difficulty_options)
-            player.screen = self.screen
+            difficulty_options, rects = gameMenu.select_difficulty(self)
+            result = await gameMenu.handle_difficulty_selection(
+                rects, difficulty_options
+            )
+            
+            if result is None or result[1] is False:  # User wants to go back/quit
+                continue
+            
+            difficulty = result[0]
+                
+            player.shielded = False
+            
             # --- Main game loop ---
             while True:
-                if restart == True:
+                if restart:
                     break
 
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         return
+                    elif event.type == pygame.VIDEORESIZE:
+                        self.actual_screen = pygame.display.set_mode(
+                            event.size, pygame.RESIZABLE
+                        )
+                        self.screen = self.actual_screen.copy()
 
                 updatable.update(dt)
 
-                
                 if player.shielded and pygame.time.get_ticks() > shielded_until:
                     player.shielded = False
 
@@ -80,7 +96,9 @@ class Game():
                             player.shield -= 1
                             asteroid.kill()
                             player.gain_exp()
-                            shielded_until = pygame.time.get_ticks() + constants.SHIELD_DURATION
+                            shielded_until = (
+                                pygame.time.get_ticks() + constants.SHIELD_DURATION
+                            )
                             player.shielded = True
 
                         elif player.health > 1:
@@ -88,6 +106,9 @@ class Game():
                             asteroid.kill()
 
                         else:
+                            # Set game reference and player for game over menu
+                            gameMenu.game = self
+                            gameMenu.player = player
                             restart = await gameMenu.show_game_over(self)
 
                     for shot in list(shots):
@@ -111,31 +132,36 @@ class Game():
                             player.gain_score()
                             player.gain_exp()
 
-
                 self.screen.fill(0)
                 self.actual_screen.fill(0)
 
                 for entity in drawable:
                     entity.draw(self.screen)
-                
+
                 gameMenu.update(self.screen, player)
 
                 if player.level > level:
                     level = player.level
                     options, rects = gameMenu.show_upgrade_menu(self)
-                    await gameMenu.handle_upgrade_selection(rects, options, player)
-                    asteroid_field.increase_difficulty(level, difficulty)
+                    selected_upgrade = await gameMenu.handle_upgrade_selection(rects, options, player)
+                    if selected_upgrade:
+                        asteroid_field.increase_difficulty(level, difficulty)
                     Clock.tick()
 
                 weapon_manager.update(player, self.screen, dt)
-                self.actual_screen.blit(pygame.transform.scale(self.screen, self.actual_screen.get_rect().size), (0, 0))
+                self.actual_screen.blit(
+                    pygame.transform.scale(
+                        self.screen, self.actual_screen.get_rect().size
+                    ),
+                    (0, 0),
+                )
                 dt = Clock.tick(120) / 1000
-                await asyncio.sleep(0)
+                await asyncio.sleep(0.001)
 
                 pygame.display.flip()
-            await asyncio.sleep(0)
-            
-        
-if __name__=="__main__":
+            await asyncio.sleep(0.001)
+
+
+if __name__ == "__main__":
     g = Game()
-    asyncio.run(g.main())          
+    asyncio.run(g.main())

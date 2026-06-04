@@ -27,14 +27,14 @@ class RotatorShot(Shot):
     
     def draw(self, screen):
         if self.is_active():
-            super().draw(screen)
+            pygame.draw.circle(screen, [210, 255, 255], self.position, self.radius)
         else:
-            pass
-
+            # Draw disabled state
+            pygame.draw.circle(screen, [50, 50, 50], self.position, self.radius)
 
 class Rotator(Weapon):
     def __init__(self, player):
-
+        super().__init__(player)
         self.player = player
         self.rotation = 0
         self.radius = constants.ROTATOR_RADIUS / 5
@@ -48,37 +48,44 @@ class Rotator(Weapon):
 
     def apply_upgrade(self):
         self.piercing = self.player.piercing
-
         self.count += 1
         self.level += 1
 
-        shot = RotatorShot(self.player.position.x, self.player.position.y, self.radius, self.level, self)
+        shot = RotatorShot(
+            self.player.position.x, 
+            self.player.position.y, 
+            self.radius, 
+            self.level, 
+            self
+        )
         self.shots.append(shot)
-        print(len(self.shots))
-
+        
+        # Add to sprite groups if containers are set
+        if hasattr(Shot, 'containers') and Shot.containers:
+            shot.add(Shot.containers)
+        
         if self.count > 10:
             self.count = 10
 
     def get_shots(self):
-        if self.shots != None:
-            return self.shots
-        else:
-            return None
+        return self.shots if self.shots else None
 
     def rotate(self, angle):
         self.rotation += angle
         self.rotation %= 360
 
     def update(self, player, screen, dt):
-
-        if len(self.shots) == 0:
+        if not self.shots:
             return
         
         speed = constants.ROTATOR_SPEED * (self.level * 0.33)
         self.rotate(dt * speed)
         self.position = player.position.copy()
+        
         for i, shot in enumerate(self.shots):
             angle = self.rotation + (360 * i / len(self.shots))
             shot.position = player.position + pygame.Vector2(0, -self.radius).rotate(angle) * self.distance
-            if shot.is_active():
-                shot.draw(screen)
+            
+            # Don't draw here - let the sprite group handle it
+            # The shots are already in the drawable group
+            pass

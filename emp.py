@@ -7,46 +7,40 @@ class Emp(Weapon):
 
     def __init__(self, player):
         super().__init__(player)
+        self.player = player
         self.piercing = 3
         self.disabled_until = 0
         self.level = 0
         self.active = True
-        self.player = player
-
+        
         self.max_radius = constants.EMP_RADIUS
         self.radius = 0
         self.shots = []
         self.shot = None
-        
-        #self.apply_upgrade()
+        self.forward = 0
 
     def get_shots(self):
-        if self.shots != None and self.is_active() == True:
+        if self.shots and self.is_active():
             return self.shots
-        else:
-            return None
-        
-    def kill(self):
-        self.active = False
-        self.shot.piercing = self.piercing
-        self.disabled_until = pygame.time.get_ticks() + (8000 * max(0.2, 1 - (self.level * 0.1)))
-
+        return None
+     
     def is_active(self):
         if self.active:
             return True
         if pygame.time.get_ticks() >= self.disabled_until:
             self.active = True
-            self.shot.piercing = self.piercing
+            if self.shot:
+                self.shot.piercing = self.piercing
             return True
         return False
-    
-    def draw(self, screen):
-        pass
-
+     
     def apply_upgrade(self):
         if self.level == 0:
             self.shot = Emp_Shot(self.player, self)
             self.shots.append(self.shot)
+            # Add to sprite groups if containers are set
+            if hasattr(Shot, 'containers') and Shot.containers:
+                self.shot.add(Shot.containers)
 
         self.piercing = self.player.piercing
         self.level += 1
@@ -56,26 +50,35 @@ class Emp(Weapon):
             self.max_radius = 300
 
     def update(self, player, screen, dt):
-        if self.shot == None:
+        if self.shot is None:
             return
-        if self.active == False:
+        
+        if not self.active:
             if pygame.time.get_ticks() >= self.disabled_until:
                 self.active = True
             else:
                 return
         
         self.shot.position = player.position.copy()
+        
         if self.radius < self.max_radius:
             self.radius = (self.radius + 400 * dt) 
             self.shot.radius = self.radius
             if self.radius >= self.max_radius:
                 self.radius = 0
-                self.kill()
-        pygame.draw.circle(screen, [20,55,55], self.shot.position, self.radius)
+                self.active = False
+                self.disabled_until = pygame.time.get_ticks() + (8000 * max(0.2, 1 - (self.level * 0.1)))
+        
+        # Draw the EMP blast effect
+        pygame.draw.circle(screen, [20, 55, 55], self.shot.position, self.radius)
+        # Draw the inner pulse
+        inner_radius = self.radius * 0.7
+        if inner_radius > 0:
+            pygame.draw.circle(screen, [50, 150, 150], self.shot.position, inner_radius)
 
 class Emp_Shot(Shot):
     def __init__(self, player, Emp):
-        super().__init__(player.position.x, player.position.y, Emp.radius)
+        super().__init__(player.position.x, player.position.y, 1)  # Start with radius 1
         self.Emp = Emp
         self.piercing = 5
         self.disabled_until = 0
@@ -85,10 +88,17 @@ class Emp_Shot(Shot):
         self.radius = 1
 
     def update(self, dt):
+        # Radius is controlled by the EMP weapon
         self.radius = self.Emp.radius
+        self.position = self.Emp.player.position.copy()
 
     def draw(self, screen):
+        # Drawing is handled by the EMP weapon
         pass
 
     def kill(self):
+        # Cannot be manually killed - controlled by EMP cooldown
         pass
+
+    def is_active(self):
+        return self.Emp.is_active()
