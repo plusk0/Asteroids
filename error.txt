@@ -1,0 +1,71 @@
+base ❯ python3 main.py                                                                                                                                (base) 
+/home/plusko/miniconda3/lib/python3.13/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.13.11)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Traceback (most recent call last):
+  File "/home/plusko/workspace/Asteroids/main.py", line 187, in <module>
+    asyncio.run(g.main())
+    ~~~~~~~~~~~^^^^^^^^^^
+  File "/home/plusko/miniconda3/lib/python3.13/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/home/plusko/miniconda3/lib/python3.13/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/plusko/miniconda3/lib/python3.13/asyncio/base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/plusko/workspace/Asteroids/main.py", line 161, in main
+    selected_upgrade = await gameMenu.handle_upgrade_selection(rects, options, player)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/plusko/workspace/Asteroids/menu.py", line 123, in handle_upgrade_selection
+    player.apply_upgrade(upgrade_options[2])
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/plusko/workspace/Asteroids/player.py", line 98, in apply_upgrade
+    self.weapon_manager.apply_upgrade_by_name(upgrade)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/plusko/workspace/Asteroids/weaponmanager.py", line 49, in apply_upgrade_by_name
+    weapon.apply_upgrade(containers)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+TypeError: Laser.apply_upgrade() takes 1 positional argument but 2 were given
+
+
+
+
+
+
+
+
+
+python3 main.py                                                                                                                                (base) 
+/home/plusko/miniconda3/lib/python3.13/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.13.11)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Traceback (most recent call last):
+  File "/home/plusko/workspace/Asteroids/main.py", line 187, in <module>
+    asyncio.run(g.main())
+    ~~~~~~~~~~~^^^^^^^^^^
+  File "/home/plusko/miniconda3/lib/python3.13/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/home/plusko/miniconda3/lib/python3.13/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/plusko/miniconda3/lib/python3.13/asyncio/base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/plusko/workspace/Asteroids/main.py", line 161, in main
+    selected_upgrade = await gameMenu.handle_upgrade_selection(rects, options, player)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/plusko/workspace/Asteroids/menu.py", line 117, in handle_upgrade_selection
+    player.apply_upgrade(upgrade_options[0])
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/plusko/workspace/Asteroids/player.py", line 98, in apply_upgrade
+    self.weapon_manager.apply_upgrade_by_name(upgrade)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/plusko/workspace/Asteroids/weaponmanager.py", line 49, in apply_upgrade_by_name
+    weapon.apply_upgrade(containers)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+TypeError: Rotator.apply_upgrade() takes 1 positional argument but 2 were given

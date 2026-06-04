@@ -34,12 +34,14 @@ class Emp(Weapon):
             return True
         return False
      
-    def apply_upgrade(self):
+    def apply_upgrade(self, containers=None):
         if self.level == 0:
             self.shot = Emp_Shot(self.player, self)
             self.shots.append(self.shot)
             # Add to sprite groups if containers are set
-            if hasattr(Shot, 'containers') and Shot.containers:
+            if containers and hasattr(self.shot, 'add'):
+                self.shot.add(containers)
+            elif hasattr(Shot, 'containers') and Shot.containers:
                 self.shot.add(Shot.containers)
 
         self.piercing = self.player.piercing

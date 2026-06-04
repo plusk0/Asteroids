@@ -46,7 +46,7 @@ class Rotator(Weapon):
 
         self.shots = []
 
-    def apply_upgrade(self):
+    def apply_upgrade(self, containers=None):
         self.piercing = self.player.piercing
         self.count += 1
         self.level += 1
@@ -61,7 +61,9 @@ class Rotator(Weapon):
         self.shots.append(shot)
         
         # Add to sprite groups if containers are set
-        if hasattr(Shot, 'containers') and Shot.containers:
+        if containers and hasattr(shot, 'add'):
+            shot.add(containers)
+        elif hasattr(Shot, 'containers') and Shot.containers:
             shot.add(Shot.containers)
         
         if self.count > 10:

@@ -65,13 +65,20 @@ class Menu:
                     exit()
             await asyncio.sleep(0)
 
-    def show_upgrade_menu(self, game):
+    def show_upgrade_menu(self, game, player=None):
         """Show upgrade selection menu using new UI system"""
         screen = game.screen
-        player = game.player if hasattr(game, 'player') else None
+        if player is None:
+            player = game.player if hasattr(game, 'player') else None
         
-        # Get upgrade options
-        upgrade_options = random.sample(constants.UPGRADES + constants.WEAPONS, 3)
+        # Get available upgrades (including final upgrades)
+        if player and hasattr(player, 'weapon_manager'):
+            available_upgrades = player.weapon_manager.get_available_upgrades()
+        else:
+            available_upgrades = constants.UPGRADES + constants.WEAPONS
+        
+        # Select 3 random upgrades
+        upgrade_options = random.sample(available_upgrades, min(3, len(available_upgrades)))
         
         # Create upgrade menu data
         menu_data = self.ui_manager.create_upgrade_menu(screen, upgrade_options, player)
@@ -91,34 +98,86 @@ class Menu:
             card_rect = card_data[0]  # First element is the rect
             rects.append(card_rect)
         
-        return upgrade_options, rects
+        # Also include formation rects if present
+        if "formations" in menu_data and menu_data["formations"]:
+            for formation_data in menu_data["formations"]:
+                formation_rect = formation_data[0]
+                rects.append(formation_rect)
+        
+        return upgrade_options, rects, menu_data.get("formations", [])
 
-    async def handle_upgrade_selection(self, rects, upgrade_options, player):
+    async def handle_upgrade_selection(self, rects, upgrade_options, player, formations=None):
         """Handle upgrade selection with new UI"""
+        if formations is None:
+            formations = []
+        
+        # Calculate which rects are for upgrades vs formations
+        upgrade_rect_count = len(upgrade_options)
+        formation_rects = rects[upgrade_rect_count:]
+        
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = event.pos
                     for i, rect in enumerate(rects):
                         if rect.collidepoint(mouse_pos):
-                            player.apply_upgrade(upgrade_options[i])
-                            return True
+                            if i < upgrade_rect_count:
+                                # Regular upgrade
+                                player.apply_upgrade(upgrade_options[i])
+                                return True
+                            else:
+                                # Formation selection
+                                formation_index = i - upgrade_rect_count
+                                if formation_index < len(formations):
+                                    formation_name = formations[formation_index][1]
+                                    self.handle_formation_selection(player, formation_name)
+                                    return True
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         return False
-                    elif event.key == pygame.K_1:
+                    elif event.key == pygame.K_1 and len(upgrade_options) >= 1:
                         player.apply_upgrade(upgrade_options[0])
                         return True
-                    elif event.key == pygame.K_2:
+                    elif event.key == pygame.K_2 and len(upgrade_options) >= 2:
                         player.apply_upgrade(upgrade_options[1])
                         return True
-                    elif event.key == pygame.K_3:
+                    elif event.key == pygame.K_3 and len(upgrade_options) >= 3:
                         player.apply_upgrade(upgrade_options[2])
+                        return True
+                    # Formation hotkeys (4,5,6)
+                    elif event.key == pygame.K_4 and len(formations) >= 1:
+                        self.handle_formation_selection(player, formations[0][1])
+                        return True
+                    elif event.key == pygame.K_5 and len(formations) >= 2:
+                        self.handle_formation_selection(player, formations[1][1])
+                        return True
+                    elif event.key == pygame.K_6 and len(formations) >= 3:
+                        self.handle_formation_selection(player, formations[2][1])
                         return True
                 elif event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
             await asyncio.sleep(0)
+    
+    def handle_formation_selection(self, player, formation_name):
+        """Handle formation selection for wingmen"""
+        if not player or not hasattr(player, 'weapon_manager'):
+            return
+        
+        wingmen = getattr(player.weapon_manager, 'wingmen', None)
+        if not wingmen or not wingmen.formations_unlocked:
+            return
+        
+        # Map formation names to IDs
+        formation_map = {
+            "Scouting": constants.WINGMEN_FORMATION_SCOUTING,
+            "Close Follow": constants.WINGMEN_FORMATION_CLOSE_FOLLOW,
+            "Radar Follow": constants.WINGMEN_FORMATION_RADAR_FOLLOW,
+        }
+        
+        formation_id = formation_map.get(formation_name)
+        if formation_id is not None:
+            wingmen.set_formation(formation_id)
 
     async def show_game_over(self, game):
         """Show game over menu using new UI system"""
