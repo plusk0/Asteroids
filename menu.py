@@ -14,7 +14,7 @@ class Menu:
 
     def select_difficulty(self, game):
         """Show difficulty selection menu using new UI system"""
-        screen = game.screen
+        screen = game.actual_screen  # Use actual screen for menu
         
         # Create difficulty menu data
         menu_data = self.ui_manager.create_difficulty_menu(screen)
@@ -22,10 +22,6 @@ class Menu:
         # Draw the menu
         self.ui_manager.draw_difficulty_menu(screen, menu_data)
         
-        game.actual_screen.blit(
-            pygame.transform.scale(game.screen, game.actual_screen.get_rect().size), 
-            (0, 0)
-        )
         pygame.display.flip()
         
         # Return the rects and difficulty options for handling selection
@@ -67,13 +63,13 @@ class Menu:
 
     def show_upgrade_menu(self, game, player=None):
         """Show upgrade selection menu using new UI system"""
-        screen = game.screen
+        screen = game.actual_screen  # Use actual screen for menu
         if player is None:
             player = game.player if hasattr(game, 'player') else None
         
-        # Get available upgrades (including final upgrades)
+        # Get available upgrades (including final upgrades), filtering locked ones
         if player and hasattr(player, 'weapon_manager'):
-            available_upgrades = player.weapon_manager.get_available_upgrades()
+            available_upgrades = player.weapon_manager.get_available_upgrades(player)
         else:
             available_upgrades = constants.UPGRADES + constants.WEAPONS
         
@@ -86,10 +82,6 @@ class Menu:
         # Draw the menu
         self.ui_manager.draw_upgrade_menu(screen, menu_data, player)
         
-        game.actual_screen.blit(
-            pygame.transform.scale(game.screen, game.actual_screen.get_rect().size), 
-            (0, 0)
-        )
         pygame.display.flip()
         
         # Return the rects for handling selection
@@ -181,7 +173,7 @@ class Menu:
 
     async def show_game_over(self, game):
         """Show game over menu using new UI system"""
-        screen = game.screen
+        screen = game.actual_screen  # Use actual screen for menu
         player = getattr(game, 'player', None)
         # Also check if player is stored in the menu instance
         if player is None and hasattr(self, 'player'):
@@ -193,10 +185,6 @@ class Menu:
         # Draw the menu
         self.ui_manager.draw_game_over_menu(screen, menu_data)
         
-        game.actual_screen.blit(
-            pygame.transform.scale(game.screen, game.actual_screen.get_rect().size), 
-            (0, 0)
-        )
         pygame.display.flip()
         
         # Handle menu selection
@@ -231,6 +219,9 @@ class Menu:
 
     def update(self, screen, player):
         """Update and draw the HUD"""
+        # Update UI manager screen dimensions
+        if screen.get_size() != (self.ui_manager.screen_width, self.ui_manager.screen_height):
+            self.ui_manager.update_screen_dimensions(screen.get_width(), screen.get_height())
         self.draw(screen, player)
 
     def draw_starry_background(self, screen):

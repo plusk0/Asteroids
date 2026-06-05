@@ -36,6 +36,11 @@ class UIManager:
 
         self.transition_alpha = 0
         self.animation_speed = 8
+    
+    def update_screen_dimensions(self, screen_width, screen_height):
+        """Update screen dimensions for UI rendering"""
+        self.screen_width = screen_width
+        self.screen_height = screen_height
 
     def draw_rounded_rect(self, screen, color, rect, radius=15, width=0):
         """Draw a rounded rectangle"""
@@ -276,6 +281,42 @@ class UIManager:
                     icon_rect.center + pygame.Vector2(8, 5),
                     1,
                 )
+            elif icon == "wingman_speed":
+                # Draw wingman with speed lines
+                pygame.draw.circle(screen, (100, 200, 255), icon_rect.center, 6)
+                # Draw speed lines behind
+                for i in range(3):
+                    angle = 180 + i * 10
+                    offset = pygame.Vector2(0, -8).rotate(angle)
+                    pygame.draw.line(
+                        screen, (100, 200, 255),
+                        icon_rect.center + offset,
+                        icon_rect.center + offset * 1.5,
+                        1
+                    )
+            elif icon == "wingman_fire":
+                # Draw wingman with fire rate indicator
+                pygame.draw.circle(screen, (255, 100, 100), icon_rect.center, 6)
+                # Draw rapid fire lines
+                for i in range(3):
+                    angle = i * 60
+                    offset = pygame.Vector2(0, -8).rotate(angle)
+                    pygame.draw.line(
+                        screen, (255, 200, 100),
+                        icon_rect.center,
+                        icon_rect.center + offset,
+                        1
+                    )
+            elif icon == "wingman_intel":
+                # Draw wingman with brain/intelligence indicator
+                pygame.draw.circle(screen, (200, 100, 200), icon_rect.center, 6)
+                # Draw brain symbol
+                pygame.draw.circle(screen, (255, 255, 255), 
+                                  icon_rect.center + pygame.Vector2(-3, -2), 2)
+                pygame.draw.circle(screen, (255, 255, 255), 
+                                  icon_rect.center + pygame.Vector2(3, -2), 2)
+                pygame.draw.circle(screen, (255, 255, 255), 
+                                  icon_rect.center + pygame.Vector2(0, 2), 2)
 
         # Draw title
         title_font = self.font_regular
@@ -739,6 +780,11 @@ class UIManager:
             "Shockwave": "shockwave",
             "Wingman Formations": "formations",
             "Basic Fighter Maneuvers": "maneuvers",
+            "Wingman Speed": "wingman_speed",
+            "Wingman Fire Rate": "wingman_fire",
+            "Wingman Intelligence": "wingman_intel",
+            "Shield Regeneration": "shield",
+            "Shield Regen Cooldown": "shield",
         }
         return icons.get(upgrade, "bigger")
 
@@ -759,6 +805,11 @@ class UIManager:
             "Shockwave": "In space ? Really ?",
             "Wingman Formations": "Unlock different wingmen movement patterns",
             "Basic Fighter Maneuvers": "Distribute wingmen between different roles",
+            "Wingman Speed": "Increases wingmen movement speed",
+            "Wingman Fire Rate": "Increases wingmen firing speed",
+            "Wingman Intelligence": "Wingmen intercept asteroids from front",
+            "Shield Regeneration": "Permanent shield that regenerates",
+            "Shield Regen Cooldown": "Decreases shield regen cooldown",
         }
         return descriptions.get(upgrade, "Unknown upgrade")
 

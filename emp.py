@@ -34,7 +34,7 @@ class Emp(Weapon):
             return True
         return False
      
-    def apply_upgrade(self, containers=None):
+    def apply_upgrade(self, containers=None, upgrade_type=None):
         if self.level == 0:
             self.shot = Emp_Shot(self.player, self)
             self.shots.append(self.shot)

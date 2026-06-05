@@ -44,9 +44,9 @@ class WeaponManager:
         for weapon in self.weapons:
             if weapon.__class__.__name__.lower() == weapon_name.lower():
                 if hasattr(weapon, 'apply_upgrade'):
-                    # Pass player's containers if available
+                    # Pass player's containers and upgrade name if available
                     player_containers = getattr(self.player, 'containers', None)
-                    weapon.apply_upgrade(player_containers)
+                    weapon.apply_upgrade(player_containers, upgrade_type=weapon_name)
                 return True
         return False
     
@@ -120,22 +120,86 @@ class WeaponManager:
         # Add more condition types here as needed
         return False
     
-    def get_available_upgrades(self):
-        """Get list of available upgrades including final upgrades"""
+    def get_available_upgrades(self, player=None):
+        """Get list of available upgrades including final upgrades, excluding locked ones"""
         available = []
         
-        # Add normal upgrades
-        available.extend(constants.UPGRADES)
-        
-        # Add normal weapons
-        available.extend(constants.WEAPONS)
+        # Get all possible upgrades
+        all_upgrades = []
+        all_upgrades.extend(constants.UPGRADES)
+        all_upgrades.extend(constants.WEAPONS)
+        all_upgrades.extend(constants.SPECIAL_UPGRADES)
         
         # Check for final upgrades
         for weapon_name, final_upgrade_name in constants.FINAL_UPGRADES.items():
             if self.check_final_upgrade_available(weapon_name):
-                available.append(final_upgrade_name)
+                all_upgrades.append(final_upgrade_name)
+        
+        # Filter out locked upgrades
+        locked_upgrades = set()
+        if player and hasattr(player, 'locked_upgrades'):
+            locked_upgrades = player.locked_upgrades
+        
+        for upgrade in all_upgrades:
+            # Check if upgrade is locked
+            if upgrade in locked_upgrades:
+                continue
+            
+            # Check per-round unlock requirements
+            if not self._check_upgrade_requirements(upgrade, player):
+                continue
+            
+            available.append(upgrade)
         
         return available
+    
+    def _check_upgrade_requirements(self, upgrade, player):
+        """Check if an upgrade meets its per-round requirements"""
+        if player is None:
+            return True
+        
+        rules = constants.UPGRADE_RULES.get(upgrade, {})
+        requires = rules.get("requires", None)
+        
+        if requires is None:
+            return True
+        
+        # Check requirement type
+        req_type = requires.get("type")
+        
+        if req_type == "weapon_level":
+            weapon_name = requires.get("weapon")
+            required_level = requires.get("level", 1)
+            
+            # Find the weapon in weapon_manager
+            for weapon in self.weapons:
+                if weapon.__class__.__name__.lower() == weapon_name.lower():
+                    return weapon.level >= required_level
+            return False
+        
+        elif req_type == "upgrade_owned":
+            required_upgrade = requires.get("upgrade")
+            return required_upgrade in getattr(player, 'owned_upgrades', set())
+        
+        elif req_type == "stat_value":
+            stat_name = requires.get("stat")
+            required_value = requires.get("value")
+            comparison = requires.get("comparison", ">=")
+            
+            stat_value = getattr(player, stat_name, 0)
+            
+            if comparison == ">=":
+                return stat_value >= required_value
+            elif comparison == "":
+                return stat_value <= required_value
+            elif comparison == "==":
+                return stat_value == required_value
+            elif comparison == "":
+                return stat_value > required_value
+            elif comparison == "<":
+                return stat_value < required_value
+        
+        return True
 
     def get_all_shots(self):
         """Get all active shots from all weapons"""
@@ -148,9 +212,13 @@ class WeaponManager:
 
     def get_effects(self):
         """Get all active effects from weapons"""
-        # Return effects from laser if it exists, or from shockwave if laser was replaced
-        if hasattr(self, 'laser') and self.laser:
+        # Return effects from laser if it exists and has effects attribute
+        if hasattr(self, 'laser') and self.laser and hasattr(self.laser, 'effects'):
             return self.laser.effects
+        # Check for shockwave (which replaces laser)
+        if hasattr(self, 'laser') and self.laser and hasattr(self.laser, 'active_effects'):
+            # Shockwave uses active_effects instead of effects
+            return self.laser.active_effects
         return []
 
     def shoot(self):

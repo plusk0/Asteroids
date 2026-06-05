@@ -24,7 +24,7 @@ class Laser(Weapon):
         self.level = 0
         self.piercing = 3
 
-    def apply_upgrade(self, containers=None):
+    def apply_upgrade(self, containers=None, upgrade_type=None):
         self.player.laser = True
         self.level += 1
         self.piercing += 3

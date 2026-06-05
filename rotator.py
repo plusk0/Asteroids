@@ -46,7 +46,7 @@ class Rotator(Weapon):
 
         self.shots = []
 
-    def apply_upgrade(self, containers=None):
+    def apply_upgrade(self, containers=None, upgrade_type=None):
         self.piercing = self.player.piercing
         self.count += 1
         self.level += 1

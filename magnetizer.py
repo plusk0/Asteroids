@@ -28,7 +28,7 @@ class Magnetizer(Weapon):
         self.effect_spawn_interval = 0.3  # seconds between circles
         self.next_circle_time = 0
 
-    def apply_upgrade(self, containers=None):
+    def apply_upgrade(self, containers=None, upgrade_type=None):
         """Upgrade the magnetizer weapon"""
         self.level += 1
         

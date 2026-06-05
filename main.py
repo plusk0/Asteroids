@@ -19,6 +19,18 @@ class Game:
         pygame.display.set_caption(f"Space Game - Version 0.0.0.69")
         self.difficulty = 0
 
+    def get_gameplay_scale(self, level):
+        """Get the scale factor for gameplay based on player level.
+        Returns a zoom-out factor of ~10% per level (0.9^level)"""
+        return max(0.5, 1.0 - (level - 1) * 0.1)  # Max 50% zoom out
+
+    def get_gameplay_offset(self, screen_size, gameplay_size):
+        """Get the offset to center gameplay in the screen"""
+        return (
+            (screen_size[0] - gameplay_size[0]) // 2,
+            (screen_size[1] - gameplay_size[1]) // 2,
+        )
+
     async def main(self):
         # Outer loop for restarting the game
         while True:
@@ -48,7 +60,7 @@ class Game:
             weapon_manager = player.weapon_manager
             asteroid_field = AsteroidField()
 
-            # Set player screen reference
+            # Set player screen reference - will be updated in the game loop
             player.screen = self.screen
 
             restart = False
@@ -101,7 +113,15 @@ class Game:
                             continue
 
                         if player.shield > 0:
-                            player.shield -= 1
+                            if player.shield_regen_unlocked:
+                                # Permanent shield: set cooldown but don't consume shield count
+                                player.shield_is_regenning = True
+                                player.shield_last_used = pygame.time.get_ticks()
+                                # Don't decrement shield, just mark it as used
+                            else:
+                                # One-time shield: consume it
+                                player.shield -= 1
+
                             if asteroid.take_damage(
                                 asteroid.max_health
                             ):  # Instant kill
@@ -155,10 +175,43 @@ class Game:
                 self.screen.fill(0)
                 self.actual_screen.fill(0)
 
-                for entity in drawable:
-                    entity.draw(self.screen)
+                # Calculate zoom scale based on player level - disabled for now in purpose
+                zoom_scale = 1  # self.get_gameplay_scale(player.level)
+                gameplay_size = (
+                    int(constants.SCREEN_WIDTH * zoom_scale),
+                    int(constants.SCREEN_HEIGHT * zoom_scale),
+                )
+                offset = self.get_gameplay_offset(
+                    self.actual_screen.get_rect().size, gameplay_size
+                )
 
-                gameMenu.update(self.screen, player)
+                # Create a gameplay surface at the scaled size
+                gameplay_screen = pygame.Surface(
+                    (constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
+                )
+                gameplay_screen.fill(0)
+
+                # Update player screen reference to gameplay surface
+                player.screen = gameplay_screen
+
+                # Draw gameplay elements to gameplay surface
+                for entity in drawable:
+                    entity.draw(gameplay_screen)
+
+                # Draw weapon effects
+                weapon_manager.update(player, gameplay_screen, dt)
+
+                # Update weapon references to game and asteroids for targeting
+                for weapon in weapon_manager.weapons:
+                    weapon.asteroids = asteroids
+                    weapon.game = self
+
+                # Scale gameplay surface and blit to actual screen (centered)
+                scaled_gameplay = pygame.transform.scale(gameplay_screen, gameplay_size)
+                self.actual_screen.blit(scaled_gameplay, offset)
+
+                # Draw UI elements at native resolution (not scaled)
+                gameMenu.update(self.actual_screen, player)
 
                 if player.level > level:
                     level = player.level
@@ -174,41 +227,6 @@ class Game:
                         asteroid_field.set_player_level(level)
                     Clock.tick()
 
-                weapon_manager.update(player, self.screen, dt)
-                # Update weapon references to game and asteroids for targeting
-                for weapon in weapon_manager.weapons:
-                    weapon.asteroids = asteroids
-                    weapon.game = self
-
-                # Calculate zoom scale based on player level (10% per level)
-                # scale = 1 / (1 + 0.1 * (level - 1)) so level 1 = 100%, level 2 = ~90.9%, level 11 = 50%
-                # zoom_scale = 1.0 / (1 + 0.1 * max(0, player.level - 1))
-                # To be implemented for non-GUI parts of the game
-
-                # Scale the screen with zoom effect
-                # scaled_screen = pygame.transform.scale(
-                #    self.screen,
-                #    (
-                #        int(self.screen.get_width() * zoom_scale),
-                #        int(self.screen.get_height() * zoom_scale),
-                #    ),
-                # )
-
-                # Center the scaled screen on the actual screen
-                # offset_x = (
-                #    self.actual_screen.get_width() - scaled_screen.get_width()
-                # ) // 2
-                # offset_y = (
-                #    self.actual_screen.get_height() - scaled_screen.get_height()
-                # ) // 2
-
-                self.actual_screen.blit(
-                    pygame.transform.scale(
-                        self.screen, self.actual_screen.get_rect().size
-                    ),
-                    (0, 0),
-                )
-
                 # (scaled_screen, (offset_x, offset_y))
                 dt = Clock.tick(120) / 1000
                 await asyncio.sleep(0.001)
@@ -220,4 +238,3 @@ class Game:
 if __name__ == "__main__":
     g = Game()
     asyncio.run(g.main())
-
