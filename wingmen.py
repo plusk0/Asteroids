@@ -30,10 +30,10 @@ class WingmanShot(Shot):
             self.kill()
             return
         if (
-            self.position.y < -constants.SCREEN_HEIGHT
-            or self.position.y > constants.SCREEN_HEIGHT
-            or self.position.x < -constants.SCREEN_WIDTH
-            or self.position.x > constants.SCREEN_WIDTH
+            self.position.y < -constants.GAMEPLAY_HEIGHT
+            or self.position.y > constants.GAMEPLAY_HEIGHT
+            or self.position.x < -constants.GAMEPLAY_WIDTH
+            or self.position.x > constants.GAMEPLAY_WIDTH
         ):
             self.kill()
 
@@ -105,16 +105,25 @@ class Wingman(CircleShape):
             self.follow_distance = constants.EMP_RADIUS * 2
 
     def generate_scout_points(self, count=4):
-        """Generate random patrol points for Scouting formation"""
+        """Generate unique patrol points for Scouting formation based on wingman_id"""
+        import random
+        # Use wingman_id to seed the random generator for unique points per wingman
+        # This ensures each scouting wingman has different patrol routes
+        random.seed(self.wingman_id * 1000 + 42)  # Unique seed per wingman
+        
         self.scout_points = []
         for i in range(count):
-            angle = i * (360 / count)
-            distance = random.randint(100, 200)
+            # Offset the angle based on wingman_id so each wingman has different starting angle
+            angle = (i * (360 / count)) + (self.wingman_id * 45)
+            distance = random.randint(100, 500)
             offset = pygame.Vector2(0, -distance).rotate(angle)
             # Will be relative to player position when used
             self.scout_points.append(offset)
         self.scout_point_index = 0
         self.scout_timer = random.uniform(1, 3)  # Change target every 2-5 seconds
+        
+        # Reset random seed to not affect other parts of the game
+        random.seed()
 
     def update(self, dt):
         if not hasattr(self, "player") or self.player is None:
@@ -144,12 +153,12 @@ class Wingman(CircleShape):
                 self.facing_angle = forward.angle_to(movement)
 
     def find_target(self):
-        """Find closest asteroid from wingman that is also within max distance from player.
+        """Find target asteroid for this wingman with individual targeting preferences.
 
-        Wingmen will follow the closest asteroid from themselves that is:
-        - Within max_player_distance from the player (formation-dependent)
-        - Within 1.5x max_player_distance from the wingman for tracking
-        - The asteroid is the closest valid one to the wingman
+        Each wingman has unique targeting to avoid stacking:
+        - Different wingmen prefer asteroids at different distances
+        - Wingmen avoid targeting the same asteroid as their siblings
+        - Formation-specific targeting preferences
         """
         closest = None
         closest_dist = float("inf")
@@ -159,8 +168,20 @@ class Wingman(CircleShape):
         max_wingman_distance = max_player_distance * 1.5  # Can track up to 1.5x
 
         asteroids = self.get_asteroids()
+        
+        # Get list of asteroids already targeted by other wingmen (if available)
+        targeted_asteroids = set()
+        if hasattr(self, 'wingmen_weapon') and self.wingmen_weapon:
+            for other_wingman in self.wingmen_weapon.wingmen_list:
+                if other_wingman != self and other_wingman.target:
+                    targeted_asteroids.add(other_wingman.target)
+        
         for asteroid in asteroids:
             if hasattr(asteroid, "alive") and not asteroid.alive():
+                continue
+
+            # Skip if this asteroid is already targeted by another wingman
+            if asteroid in targeted_asteroids:
                 continue
 
             # Check distance from player to asteroid (formation-dependent) - asteroid must be within range of player
@@ -176,8 +197,13 @@ class Wingman(CircleShape):
             ):  # Use formation-dependent max
                 continue
 
-            if wingman_to_asteroid < closest_dist:
-                closest_dist = wingman_to_asteroid
+            # Apply wingman-specific targeting preferences based on wingman_id
+            # Each wingman has a slightly different preferred distance range
+            preference_multiplier = 1.0 + (self.wingman_id * 0.1)  # Wingman 0 prefers closer, 1 prefers slightly further, etc.
+            adjusted_distance = wingman_to_asteroid * preference_multiplier
+
+            if adjusted_distance < closest_dist:
+                closest_dist = adjusted_distance
                 closest = asteroid
 
         self.target = closest

@@ -14,9 +14,12 @@ class Magnetizer(Weapon):
         
         # Upgradeable properties - start at level 0 (no effect)
         self.level = 0
-        self.push_amount = 0  # Start with no effect at level 0
-        self.push_range = 0  # No range at level 0
-        self.max_asteroid_size = constants.MAGNETIZER_MAX_ASTEROID_SIZE
+        self.base_push_force = 0  # Start with no effect at level 0
+        self.base_range = 0  # No range at level 0
+        
+        # Fitting constants for tweaking
+        self.push_force_constant = constants.MAGNETIZER_BASE_PUSH_AMOUNT
+        self.range_constant = constants.MAGNETIZER_PUSH_RANGE
         
         # Visual properties - greyish color
         self.color = (150, 150, 150)  # Greyish color
@@ -36,34 +39,26 @@ class Magnetizer(Weapon):
         if self.level >= 1:
             self.active = True
         
-        # Apply upgrades based on level
-        # Push amount is adjusted so that level 5 can barely keep medium asteroids away
-        # At level 5, push_amount * resistance should counteract asteroid speed
-        # Asteroid speed ranges from 40-100 (base) * difficulty multiplier
-        # For medium difficulty: 40-100 * 1.5 = 60-150
-        # For tier 2 (medium) asteroids: resistance = 0.5
-        # So at level 5: push_amount * 0.5 >= asteroid_speed (to keep them away)
-        # If we want to keep medium asteroids away at medium difficulty: push_amount * 0.5 >= 100
-        # So push_amount >= 200 at level 5
+        # Apply upgrades based on level using fitting constants
+        # base_push_force = push_force_constant * level_multiplier
+        # base_range = range_constant * level_multiplier
         if self.level == 1:
             # Level 1: base values
-            self.push_amount = 20  # Increased from 15
-            self.push_range = constants.MAGNETIZER_PUSH_RANGE
+            self.base_push_force = self.push_force_constant * 1.0
+            self.base_range = self.range_constant * 1.0
         elif self.level == 2:
-            self.push_amount = 40
-            self.push_range = constants.MAGNETIZER_PUSH_RANGE
+            self.base_push_force = self.push_force_constant * 1.5
+            self.base_range = self.range_constant * 1.2
         elif self.level == 3:
-            self.push_amount = 80
-            self.push_range = constants.MAGNETIZER_PUSH_RANGE * 1.1
+            self.base_push_force = self.push_force_constant * 2.0
+            self.base_range = self.range_constant * 1.4
         elif self.level == 4:
-            self.push_amount = 140
-            self.push_range = constants.MAGNETIZER_PUSH_RANGE * 1.2
+            self.base_push_force = self.push_force_constant * 2.5
+            self.base_range = self.range_constant * 1.6
         elif self.level >= 5:
-            # At level 5, push_amount = 200, which with resistance 0.5 gives 100 force
-            # This should barely keep medium asteroids (speed 100-150 at medium difficulty) away
-            self.push_amount = 200 + (self.level - 5) * 40
-            # Increase range as well
-            self.push_range = constants.MAGNETIZER_PUSH_RANGE * (1.2 + (self.level - 5) * 0.1)
+            # Higher levels scale more dramatically
+            self.base_push_force = self.push_force_constant * (2.5 + (self.level - 4) * 0.5)
+            self.base_range = self.range_constant * (1.6 + (self.level - 4) * 0.2)
 
     def update(self, player, screen, dt):
         """Update magnetizer effect on nearby asteroids"""
@@ -89,7 +84,7 @@ class Magnetizer(Weapon):
             # Add a new effect circle
             self.effect_circles.append({
                 'radius': 0,
-                'max_radius': self.push_range,
+                'max_radius': self.base_range,
                 'alpha': 200,
                 'age': 0,
                 'lifetime': 0.8  # 0.8 seconds
@@ -120,29 +115,44 @@ class Magnetizer(Weapon):
         return []
 
     def apply_magnetic_force(self, asteroid, dt):
-        """Apply magnetic repulsion force to an asteroid"""
+        """Apply magnetic repulsion force to an asteroid
+        
+        Push force is inversely proportional to asteroid size and kind.
+        - Larger asteroids get pushed less (inversely proportional to radius)
+        - Higher kind/tier asteroids get pushed less (inversely proportional to kind)
+        """
         # Check if asteroid is within range
         distance = self.player.position.distance_to(asteroid.position)
         
-        if distance > self.push_range:
+        if distance > self.base_range:
             return
         
-        # Check if asteroid is too large
-        if hasattr(asteroid, 'radius') and asteroid.radius > self.max_asteroid_size:
-            return
+        # Get asteroid properties
+        asteroid_radius = getattr(asteroid, 'radius', 1)
+        asteroid_kind = getattr(asteroid, 'kind', 1)
+        asteroid_tier = getattr(asteroid, 'tier', 1)
         
-        # Get resistance multiplier based on asteroid tier
-        tier = getattr(asteroid, 'tier', 1)
-        resistance = constants.ASTEROID_TIER_MAGNETIZER_RESISTANCE.get(tier, 1.0)
+        # Calculate inverse proportional factors
+        # Size factor: smaller asteroids get pushed more (inversely proportional to radius)
+        size_factor = 1.0 / max(asteroid_radius, 1)  # Avoid division by zero
+        
+        # Kind/Tier factor: lower kind asteroids get pushed more (inversely proportional to kind)
+        kind_factor = 1.0 / max(asteroid_kind, 1)  # Avoid division by zero
+        
+        # Combined resistance factor
+        resistance_factor = size_factor * kind_factor
         
         # Calculate push direction (away from player)
         direction = (asteroid.position - self.player.position).normalize()
         
         # Calculate push force based on distance (stronger when closer)
-        distance_factor = 1 - (distance / self.push_range)
-        push_force = self.push_amount * distance_factor * resistance
+        # Use inverse square law for more natural feel: force = 1/distance^2
+        distance_factor = 1.0 / (1.0 + distance * distance / (self.base_range * self.base_range))
         
-        # Apply force
+        # Final push force: base_push_force * resistance_factor * distance_factor
+        push_force = self.base_push_force * resistance_factor * distance_factor
+        
+        # Apply force to position
         asteroid.position += direction * push_force * dt
         
         # Also affect velocity to prevent asteroids from coming back

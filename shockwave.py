@@ -16,7 +16,8 @@ class ShockwaveEffect(Shot):
     def __init__(self, player, start_pos, direction, width, distance, damage):
         super().__init__(start_pos.x, start_pos.y, 1)
         self.player = player
-        self.start_pos = player.position.copy()
+        # Use the passed start_pos, not player.position, to capture the position at time of firing
+        self.start_pos = start_pos.copy()
         self.direction = direction
         self.base_width = width
         self.max_distance = distance
@@ -27,6 +28,7 @@ class ShockwaveEffect(Shot):
         self.line_width = 2
         self.line_color = (220, 220, 220)
 
+        # Calculate end position: straight line from start_pos in direction for the given distance
         self.end_pos = start_pos + direction * distance
 
         self.wave_interval = 0.1
@@ -107,7 +109,7 @@ class ShockwaveEffect(Shot):
                         self.line_width,
                     )
                     angle = math.degrees(math.atan2(end.y - start.y, end.x - start.x))
-                    rotated = pygame.transform.rotate(s, angle)
+                    rotated = pygame.transform.rotate(s, -angle)
                     screen.blit(
                         rotated,
                         (
@@ -123,17 +125,25 @@ class ShockwaveEffect(Shot):
         if not hasattr(asteroid, "position"):
             return False
 
-        line_vec = self.end_pos - self.start_pos
-        asteroid_vec = asteroid.position - self.start_pos
+        start = self.start_pos
+        end = self.end_pos
+        center = asteroid.position
 
-        if line_vec.length() == 0:
+        line_vec = end - start
+        line_len = line_vec.length()
+        if line_len == 0:
             return False
+        to_center = center - start
 
-        t = max(0, min(1, asteroid_vec.dot(line_vec) / line_vec.length_squared()))
-        closest_point = self.start_pos + line_vec * t
+        # Project to_center onto line_vec, clamp to segment - same as laser
+        t = max(0, min(1, to_center.dot(line_vec) / (line_len**2)))
+        closest = start + line_vec * t
 
-        distance = (asteroid.position - closest_point).length()
-        return distance < (self.base_width / 2 + getattr(asteroid, "radius", 20))
+        dist = center.distance_to(closest)
+
+        # Same as laser: dist < (width / 2 + radius)
+        asteroid_radius = getattr(asteroid, "radius", 20)
+        return dist < (self.base_width / 2 + asteroid_radius)
 
 
 class Shockwave(Weapon):
@@ -148,7 +158,7 @@ class Shockwave(Weapon):
 
         self.level = 0
         self.width = 5
-        self.distance = 1000
+        self.distance = constants.GAMEPLAY_HEIGHT  # Use screen height as max distance
         self.damage = 1
         self.cooldown = 0.8
         self.current_cooldown = 0
@@ -190,10 +200,15 @@ class Shockwave(Weapon):
         self.current_cooldown = self.cooldown
 
         start_pos = self.player.position.copy()
-        direction = pygame.Vector2(0, 1).rotate(-self.player.rotation)
+        # Use same forward direction calculation as player movement/rotation
+        direction = pygame.Vector2(0, 1).rotate(self.player.rotation)
+
+        # Calculate the maximum distance to the edge of the gameplay area
+        # in the direction the player is facing
+        max_distance = self.calculate_max_distance(start_pos, direction)
 
         effect = ShockwaveEffect(
-            self.player, start_pos, direction, self.width, self.distance, self.damage
+            self.player, start_pos, direction, self.width, max_distance, self.damage
         )
 
         self.active_effects.append(effect)
@@ -206,6 +221,70 @@ class Shockwave(Weapon):
 
     def get_shots(self):
         return self.active_effects if self.active_effects else None
+
+    def calculate_max_distance(self, start_pos, direction):
+        """Calculate the maximum distance from start_pos in direction to the edge of gameplay area.
+
+        This finds where the ray (start_pos -> direction) intersects the gameplay area boundary.
+        """
+        # Get the four edges of the gameplay area
+        left = 0
+        right = constants.GAMEPLAY_WIDTH
+        top = 0
+        bottom = constants.GAMEPLAY_HEIGHT
+
+        # If direction has no length, return default distance
+        if direction.length_squared() == 0:
+            return self.distance
+
+        # We need to find the intersection of the ray with the rectangle [left, right] x [top, bottom]
+        # Ray equation: P = start_pos + t * direction, where t >= 0
+        # We want the smallest t > 0 where P is on the boundary of the gameplay area
+
+        # Instead of checking each edge separately, we can calculate t for x and y boundaries
+        tx_min = float("inf")  # t where we hit left or right boundary
+        ty_min = float("inf")  # t where we hit top or bottom boundary
+
+        # Calculate t for left boundary (x = left)
+        if direction.x != 0:
+            t_left = (left - start_pos.x) / direction.x
+            if t_left >= 0:
+                # Check if y is within bounds at this t
+                y = start_pos.y + t_left * direction.y
+                if top <= y <= bottom:
+                    tx_min = t_left
+
+        # Calculate t for right boundary (x = right)
+        if direction.x != 0:
+            t_right = (right - start_pos.x) / direction.x
+            if t_right >= 0:
+                # Check if y is within bounds at this t
+                y = start_pos.y + t_right * direction.y
+                if top <= y <= bottom:
+                    if t_right < tx_min:
+                        tx_min = t_right
+
+        # Calculate t for top boundary (y = top)
+        if direction.y != 0:
+            t_top = (top - start_pos.y) / direction.y
+            if t_top >= 0:
+                # Check if x is within bounds at this t
+                x = start_pos.x + t_top * direction.x
+                if left <= x <= right:
+                    ty_min = t_top
+
+        # Calculate t for bottom boundary (y = bottom)
+        if direction.y != 0:
+            t_bottom = (bottom - start_pos.y) / direction.y
+            if t_bottom >= 0:
+                # Check if x is within bounds at this t
+                x = start_pos.x + t_bottom * direction.x
+                if left <= x <= right:
+                    if t_bottom < ty_min:
+                        ty_min = t_bottom
+
+        # Return the minimum t (closest intersection)
+        return min(tx_min, ty_min)
 
     def is_active(self):
         return self.level > 0

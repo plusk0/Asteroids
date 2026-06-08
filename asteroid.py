@@ -39,10 +39,10 @@ class Asteroid(CircleShape):
     
     def update(self, dt):
         self.position += dt * self.velocity
-        if (self.position.y < 2 * -constants.SCREEN_HEIGHT or 
-        self.position.y > 2 * constants.SCREEN_HEIGHT or 
-        self.position.x < -2 * constants.SCREEN_WIDTH or 
-        self.position.x > 2 * constants.SCREEN_WIDTH):
+        if (self.position.y < 2 * -constants.GAMEPLAY_HEIGHT or 
+        self.position.y > 2 * constants.GAMEPLAY_HEIGHT or 
+        self.position.x < -2 * constants.GAMEPLAY_WIDTH or 
+        self.position.x > 2 * constants.GAMEPLAY_WIDTH):
             self.kill()
 
     def kill(self):

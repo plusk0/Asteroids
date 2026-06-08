@@ -254,10 +254,10 @@ class Player(CircleShape):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
         if (
             self.position.x + forward[0] * constants.PLAYER_SPEED * dt
-            < constants.SCREEN_WIDTH
+            < constants.GAMEPLAY_WIDTH
             and self.position.x + (forward[0] * constants.PLAYER_SPEED * dt) > 0
             and self.position.y + (forward[1] * constants.PLAYER_SPEED * dt)
-            < constants.SCREEN_HEIGHT - self.radius / 2 * constants.SCALE
+            < constants.GAMEPLAY_HEIGHT - self.radius / 2 * constants.SCALE
             and self.position.y + (forward[1] * constants.PLAYER_SPEED * dt) > 0
         ):
             self.position += forward * constants.PLAYER_SPEED * dt

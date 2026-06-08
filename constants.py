@@ -1,7 +1,12 @@
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
 SCALE = 1
-ZOOM_SCALE = 1.0  # Current zoom level (1.0 = no zoom, < 1.0 = zoom out)
+ZOOM_SCALE = 1
+
+# Virtual gameplay area - this defines the consistent gameplay space
+# All game logic should use these dimensions
+GAMEPLAY_WIDTH = 1920
+GAMEPLAY_HEIGHT = 1080
 
 PLAYER_RADIUS = 20
 PLAYER_TURN_SPEED = 300
@@ -17,28 +22,28 @@ PLAYER_SHOT_PIERCE = 0
 
 # Difficulty settings
 DIFFICULTY_SPAWN_MULTIPLIERS = {
-    0: 0.7,  # Easy
-    1: 1.75,  # Medium - between easy and nightmare
-    2: 2.5,  # Nightmare
+    0: 0.9,
+    1: 1.75,
+    2: 2.5,
 }
 
 DIFFICULTY_SPEED_MULTIPLIERS = {
-    0: 1.0,  # Easy
-    1: 1.5,  # Medium - between 1.0 and 1.8
-    2: 1.8,  # Nightmare
+    0: 1.0,
+    1: 1.2,
+    2: 1.5,
 }
 
 DIFFICULTY_SIZE_MULTIPLIERS = {
-    0: 1.0,  # Easy
-    1: 1.35,  # Medium - between 1.0 and 1.5
-    2: 1.5,  # Nightmare
+    0: 0.8,  # Easy
+    1: 1.2,
+    2: 1.5,
 }
 
 # Asteroid types/tiers
 ASTEROID_TIER_COLORS = {
-    1: (200, 200, 200),  # White - tier 1 (1x health)
-    2: (255, 200, 100),  # Orange - tier 2 (2x health)
-    3: (255, 100, 100),  # Red - tier 3 (3x health)
+    1: (200, 200, 200),
+    2: (255, 200, 100),
+    3: (255, 100, 100),
 }
 
 ASTEROID_TIER_HEALTH_MULTIPLIERS = {1: 1, 2: 2, 3: 4}
@@ -221,14 +226,16 @@ EMP_RANGE = 100  # From EMP_RADIUS constant for reference
 
 # Formation-dependent max distances for wingmen to follow asteroids
 WINGMEN_MAX_ATTACK_DISTANCE = {
-    WINGMEN_FORMATION_CLOSE_FOLLOW: 150,
+    WINGMEN_FORMATION_CLOSE_FOLLOW: 250,
     WINGMEN_FORMATION_SCOUTING: 500,
-    WINGMEN_FORMATION_RADAR_FOLLOW: 300,
+    WINGMEN_FORMATION_RADAR_FOLLOW: 400,
 }
 
-MAGNETIZER_BASE_PUSH_AMOUNT = 20
-MAGNETIZER_PUSH_RANGE = 75
-MAGNETIZER_MAX_ASTEROID_SIZE = 80
+# Magnetizer fitting constants
+MAGNETIZER_BASE_PUSH_AMOUNT = (
+    50  # Base push force constant - tweak this to adjust overall strength
+)
+MAGNETIZER_PUSH_RANGE = 200
 
 # Weapon specific:
 ROTATOR_SPEED = 300
@@ -236,7 +243,7 @@ ROTATOR_RADIUS = 30
 
 EMP_RADIUS = 100
 
-LASER_WIDTH = 5
+LASER_WIDTH = 3
 LASER_SPEED_MULT = 30
 
 SHOT_RADIUS = 7

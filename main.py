@@ -19,6 +19,11 @@ class Game:
         pygame.display.set_caption("Space Game - Version 0.1")
         self.difficulty = 0
 
+        # Gameplay scaling variables
+        self.gameplay_size = (constants.GAMEPLAY_WIDTH, constants.GAMEPLAY_HEIGHT)
+        self.screen_scale = 1.0
+        self.screen_offset = (0, 0)
+
     def get_gameplay_scale(self, level):
         """Get the scale factor for gameplay based on player level.
         Returns a zoom-out factor of ~10% per level (0.9^level)"""
@@ -30,6 +35,38 @@ class Game:
             (screen_size[0] - gameplay_size[0]) // 2,
             (screen_size[1] - gameplay_size[1]) // 2,
         )
+
+    def calculate_scaling(self):
+        """Calculate scaling factors to fit gameplay area to screen while maintaining aspect ratio"""
+        screen_size = self.actual_screen.get_size()
+        gameplay_w, gameplay_h = self.gameplay_size
+        screen_w, screen_h = screen_size
+
+        # Calculate scale to fit while maintaining aspect ratio
+        scale_w = screen_w / gameplay_w
+        scale_h = screen_h / gameplay_h
+        self.screen_scale = min(scale_w, scale_h)
+
+        # Calculate offset to center the gameplay area
+        scaled_w = int(gameplay_w * self.screen_scale)
+        scaled_h = int(gameplay_h * self.screen_scale)
+        self.screen_offset = ((screen_w - scaled_w) // 2, (screen_h - scaled_h) // 2)
+
+        return self.screen_scale, self.screen_offset
+
+    def screen_to_gameplay_coords(self, screen_pos):
+        """Transform screen coordinates to gameplay coordinates"""
+        if self.screen_scale <= 0:
+            return screen_pos
+
+        x, y = screen_pos
+        offset_x, offset_y = self.screen_offset
+
+        # Subtract offset and scale back to gameplay coordinates
+        gameplay_x = (x - offset_x) / self.screen_scale
+        gameplay_y = (y - offset_y) / self.screen_scale
+
+        return (gameplay_x, gameplay_y)
 
     async def main(self):
         # Outer loop for restarting the game
@@ -56,7 +93,10 @@ class Game:
             shielded_until = 0
             level = 1
 
-            player = Player(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT / 2)
+            # Calculate initial scaling
+            self.calculate_scaling()
+
+            player = Player(constants.GAMEPLAY_WIDTH / 2, constants.GAMEPLAY_HEIGHT / 2)
             weapon_manager = player.weapon_manager
             asteroid_field = AsteroidField()
 
@@ -94,6 +134,8 @@ class Game:
                             event.size, pygame.RESIZABLE
                         )
                         self.screen = self.actual_screen.copy()
+                        # Recalculate scaling for new screen size
+                        self.calculate_scaling()
 
                 updatable.update(dt)
 
@@ -112,7 +154,7 @@ class Game:
                                 player.gain_score()
                             continue
 
-                        if player.shield > 0:
+                        if player.shield > 0 and not player.shield_is_regenning:
                             if player.shield_regen_unlocked:
                                 # Permanent shield: set cooldown but don't consume shield count
                                 player.shield_is_regenning = True
@@ -175,20 +217,12 @@ class Game:
                 self.screen.fill(0)
                 self.actual_screen.fill(0)
 
-                # Calculate zoom scale based on player level - disabled for now in purpose
-                zoom_scale = 1  # self.get_gameplay_scale(player.level)
-                gameplay_size = (
-                    int(constants.SCREEN_WIDTH * zoom_scale),
-                    int(constants.SCREEN_HEIGHT * zoom_scale),
-                )
-                offset = self.get_gameplay_offset(
-                    self.actual_screen.get_rect().size, gameplay_size
-                )
+                # Use the pre-calculated scaling
+                gameplay_w, gameplay_h = self.gameplay_size
+                offset = self.screen_offset
 
-                # Create a gameplay surface at the scaled size
-                gameplay_screen = pygame.Surface(
-                    (constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
-                )
+                # Create a gameplay surface at the standard gameplay size
+                gameplay_screen = pygame.Surface((gameplay_w, gameplay_h))
                 gameplay_screen.fill(0)
 
                 # Update player screen reference to gameplay surface
@@ -207,7 +241,11 @@ class Game:
                     weapon.game = self
 
                 # Scale gameplay surface and blit to actual screen (centered)
-                scaled_gameplay = pygame.transform.scale(gameplay_screen, gameplay_size)
+                scaled_size = (
+                    int(gameplay_w * self.screen_scale),
+                    int(gameplay_h * self.screen_scale),
+                )
+                scaled_gameplay = pygame.transform.scale(gameplay_screen, scaled_size)
                 self.actual_screen.blit(scaled_gameplay, offset)
 
                 # Draw UI elements at native resolution (not scaled)

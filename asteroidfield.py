@@ -8,22 +8,22 @@ class AsteroidField(pygame.sprite.Sprite):
     edges = [
         [
             pygame.Vector2(1, 0),
-            lambda y: pygame.Vector2(-constants.ASTEROID_MAX_RADIUS, y * constants.SCREEN_HEIGHT),
+            lambda y: pygame.Vector2(-constants.ASTEROID_MAX_RADIUS, y * constants.GAMEPLAY_HEIGHT),
         ],
         [
             pygame.Vector2(-1, 0),
             lambda y: pygame.Vector2(
-                constants.SCREEN_WIDTH + constants.ASTEROID_MAX_RADIUS, y * constants.SCREEN_HEIGHT
+                constants.GAMEPLAY_WIDTH + constants.ASTEROID_MAX_RADIUS, y * constants.GAMEPLAY_HEIGHT
             ),
         ],
         [
             pygame.Vector2(0, 1),
-            lambda x: pygame.Vector2(x * constants.SCREEN_WIDTH, -constants.ASTEROID_MAX_RADIUS),
+            lambda x: pygame.Vector2(x * constants.GAMEPLAY_WIDTH, -constants.ASTEROID_MAX_RADIUS),
         ],
         [
             pygame.Vector2(0, -1),
             lambda x: pygame.Vector2(
-                x * constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT + constants.ASTEROID_MAX_RADIUS
+                x * constants.GAMEPLAY_WIDTH, constants.GAMEPLAY_HEIGHT + constants.ASTEROID_MAX_RADIUS
             ),
         ],
     ]

@@ -7,7 +7,8 @@ from ui import UIManager, Colors
 
 class Menu:
     def __init__(self):
-        self.ui_manager = UIManager(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT)
+        # Initialize with default size, will be updated when first used
+        self.ui_manager = None
         self.fontsize = 32
         self.font = pygame.font.SysFont(None, self.fontsize)
         self.background_color = (0, 0, 0)
@@ -15,6 +16,13 @@ class Menu:
     def select_difficulty(self, game):
         """Show difficulty selection menu using new UI system"""
         screen = game.actual_screen  # Use actual screen for menu
+        
+        # Initialize UI manager with actual screen size if not already done
+        if self.ui_manager is None:
+            self.ui_manager = UIManager(screen.get_width(), screen.get_height())
+        else:
+            # Update UI manager with current screen dimensions
+            self.ui_manager.update_screen_dimensions(screen.get_width(), screen.get_height())
         
         # Create difficulty menu data
         menu_data = self.ui_manager.create_difficulty_menu(screen)
@@ -66,6 +74,12 @@ class Menu:
         screen = game.actual_screen  # Use actual screen for menu
         if player is None:
             player = game.player if hasattr(game, 'player') else None
+        
+        # Initialize UI manager if needed
+        if self.ui_manager is None:
+            self.ui_manager = UIManager(screen.get_width(), screen.get_height())
+        else:
+            self.ui_manager.update_screen_dimensions(screen.get_width(), screen.get_height())
         
         # Get available upgrades (including final upgrades), filtering locked ones
         if player and hasattr(player, 'weapon_manager'):
@@ -179,6 +193,12 @@ class Menu:
         if player is None and hasattr(self, 'player'):
             player = self.player
         
+        # Initialize UI manager if needed
+        if self.ui_manager is None:
+            self.ui_manager = UIManager(screen.get_width(), screen.get_height())
+        else:
+            self.ui_manager.update_screen_dimensions(screen.get_width(), screen.get_height())
+        
         # Create game over menu data
         menu_data = self.ui_manager.create_game_over_menu(screen, player)
         
@@ -196,14 +216,9 @@ class Menu:
                 elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         mouse_pos = event.pos
-                        # Scale mouse position to match the game screen
-                        scale_x = game.screen.get_width() / game.actual_screen.get_width()
-                        scale_y = game.screen.get_height() / game.actual_screen.get_height()
-                        scaled_pos = (mouse_pos[0] * scale_x, mouse_pos[1] * scale_y)
-                        
-                        if menu_data["restart"].collidepoint(scaled_pos):
+                        if menu_data["restart"].collidepoint(mouse_pos):
                             return True
-                        elif menu_data["menu"].collidepoint(scaled_pos):
+                        elif menu_data["menu"].collidepoint(mouse_pos):
                             return False
                     elif event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_ESCAPE:
@@ -219,9 +234,13 @@ class Menu:
 
     def update(self, screen, player):
         """Update and draw the HUD"""
-        # Update UI manager screen dimensions
-        if screen.get_size() != (self.ui_manager.screen_width, self.ui_manager.screen_height):
-            self.ui_manager.update_screen_dimensions(screen.get_width(), screen.get_height())
+        # Initialize UI manager if needed
+        if self.ui_manager is None:
+            self.ui_manager = UIManager(screen.get_width(), screen.get_height())
+        else:
+            # Update UI manager screen dimensions
+            if screen.get_size() != (self.ui_manager.screen_width, self.ui_manager.screen_height):
+                self.ui_manager.update_screen_dimensions(screen.get_width(), screen.get_height())
         self.draw(screen, player)
 
     def draw_starry_background(self, screen):

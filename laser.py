@@ -27,18 +27,19 @@ class Laser(Weapon):
     def apply_upgrade(self, containers=None, upgrade_type=None):
         self.player.laser = True
         self.level += 1
-        self.piercing += 3
-        self.width += 10
-        self.aftereffect *= 1.2
+        self.piercing += 1
+        self.width += 5
+        self.aftereffect *= 1.1
 
     def update(self, player, screen, dt):
         for effect in self.effects:
             effect.update()
             effect.draw(screen)
-        
+
     def apply_aftereffect(self, shot):
         aftereffect = Laser_effect(self.player, self, shot.position)
         self.effects.append(aftereffect)
+
 
 class Laser_Shot(Shot):
     def __init__(self, player, weapon):
@@ -51,25 +52,28 @@ class Laser_Shot(Shot):
     def draw(self, screen):
         # Draw laser line from player to current position
         pygame.draw.line(
-            screen, 
-            [255, 255, 255], 
-            self.player.position, 
-            self.position, 
-            int(self.weapon.width / 2)
+            screen,
+            [255, 255, 255],
+            self.player.position,
+            self.position,
+            int(self.weapon.width / 2),
         )
         # Draw laser end point
         pygame.draw.circle(screen, [255, 255, 255], self.position, self.radius)
 
     def update(self, dt):
         self.position += dt * self.velocity
-        if (self.position.y < -constants.SCREEN_HEIGHT or 
-        self.position.y > constants.SCREEN_HEIGHT or 
-        self.position.x < -constants.SCREEN_WIDTH or 
-        self.position.x > constants.SCREEN_WIDTH):
+        if (
+            self.position.y < -constants.GAMEPLAY_HEIGHT
+            or self.position.y > constants.GAMEPLAY_HEIGHT
+            or self.position.x < -constants.GAMEPLAY_WIDTH
+            or self.position.x > constants.GAMEPLAY_WIDTH
+        ):
             self.kill()
             self.weapon.apply_aftereffect(self)
-            
-class Laser_effect():
+
+
+class Laser_effect:
     def __init__(self, player, weapon, dest):
         self.player = player
         self.weapon = weapon
@@ -83,10 +87,14 @@ class Laser_effect():
     def draw(self, screen):
         if self.valid_until > pygame.time.get_ticks():
             pygame.draw.line(screen, "red", self.source, self.dest, int(self.width))
-            
+
     def update(self):
         if self.valid_until > pygame.time.get_ticks():
-            self.width = pygame.math.lerp(0, self.max_width, (self.valid_until - pygame.time.get_ticks()) / self.weapon.aftereffect)
+            self.width = pygame.math.lerp(
+                0,
+                self.max_width,
+                (self.valid_until - pygame.time.get_ticks()) / self.weapon.aftereffect,
+            )
         else:
             if self in self.weapon.effects:
                 self.weapon.effects.remove(self)
@@ -101,15 +109,16 @@ class Laser_effect():
         line_vec = end - start
         line_len = line_vec.length()
         if line_len == 0:
-            return False 
+            return False
         to_center = center - start
 
-        # Project to_center onto line_vec, clamp to segment - 
+        # Project to_center onto line_vec, clamp to segment -
         # AI generated calculation, dont ask me which kind of geometric dot magic is going on here
-        t = max(0, min(1, to_center.dot(line_vec) / (line_len ** 2)))
-        
+        t = max(0, min(1, to_center.dot(line_vec) / (line_len**2)))
+
         closest = start + line_vec * t
 
         dist = center.distance_to(closest)
 
         return dist < (self.width / 2 + other.radius)
+
