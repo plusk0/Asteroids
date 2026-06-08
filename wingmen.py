@@ -509,7 +509,9 @@ class Wingman(CircleShape):
 
                 # Rotate to face flight direction (facing_angle)
                 if self.facing_angle is not None:
-                    rotated = pygame.transform.rotate(scaled_sprite, -self.facing_angle + 180)
+                    rotated = pygame.transform.rotate(
+                        scaled_sprite, -self.facing_angle + 180
+                    )
                 else:
                     rotated = scaled_sprite
 
@@ -687,7 +689,7 @@ class Wingmen(Weapon):
         if self.level == 1:
             self.wingmen_count = 1
         # Every 5 levels: add another wingman (up to max)
-        elif self.level % 5 == 0:
+        elif self.level % 2 == 0:
             self.wingmen_count = min(6, self.wingmen_count + 1)
 
         self.spawn_wingmen()
