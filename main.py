@@ -16,7 +16,7 @@ class Game:
         )
         self.screen = self.actual_screen.copy()
 
-        pygame.display.set_caption(f"Space Game - Version 0.0.0.69")
+        pygame.display.set_caption("Space Game - Version 0.1")
         self.difficulty = 0
 
     def get_gameplay_scale(self, level):

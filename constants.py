@@ -17,7 +17,7 @@ PLAYER_SHOT_PIERCE = 0
 
 # Difficulty settings
 DIFFICULTY_SPAWN_MULTIPLIERS = {
-    0: 1.0,  # Easy
+    0: 0.7,  # Easy
     1: 1.75,  # Medium - between easy and nightmare
     2: 2.5,  # Nightmare
 }
