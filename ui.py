@@ -731,6 +731,7 @@ class UIManager:
 
         # Add formation options if wingmen formations are unlocked
         formations = []
+        current_formation = None  # Store the currently selected formation
         if (
             player
             and hasattr(player, "weapon_manager")
@@ -738,6 +739,9 @@ class UIManager:
         ):
             wingmen = player.weapon_manager.wingmen
             if wingmen.formations_unlocked:
+                # Store current formation for highlighting
+                current_formation = wingmen.formation
+                
                 # Add formation options below the upgrade options
                 formation_spacing = start_y + len(upgrade_options) * card_spacing + 40
                 formation_card_width = 130  # Smaller width for formations
@@ -758,10 +762,10 @@ class UIManager:
                         formation_card_height,
                     )
                     formations.append(
-                        (formation_rect, formation_name, f"formation_{i}")
+                        (formation_rect, formation_name, f"formation_{i}", i)
                     )
 
-        return {"cards": rects, "formations": formations}
+        return {"cards": rects, "formations": formations, "current_formation": current_formation}
 
     def get_upgrade_icon(self, upgrade):
         """Get icon name for upgrade"""
@@ -882,13 +886,28 @@ class UIManager:
             )
             screen.blit(hotkey, hotkey_rect)
 
+        # Get current formation for highlighting
+        current_formation = menu_data.get("current_formation", None)
+        formation_map = {
+            "Scouting": constants.WINGMEN_FORMATION_SCOUTING,
+            "Close Follow": constants.WINGMEN_FORMATION_CLOSE_FOLLOW,
+            "Radar Follow": constants.WINGMEN_FORMATION_RADAR_FOLLOW,
+        }
+
         # Draw formation options if present
         if "formations" in menu_data and menu_data["formations"]:
-            for formation_rect, formation_name, formation_icon in menu_data[
-                "formations"
-            ]:
+            for formation_data in menu_data["formations"]:
+                # formation_data is (formation_rect, formation_name, formation_icon, formation_id)
+                formation_rect = formation_data[0]
+                formation_name = formation_data[1]
+                formation_icon = formation_data[2]
+                formation_id = formation_data[3] if len(formation_data) > 3 else None
+                
                 mouse_pos = pygame.mouse.get_pos()
                 mouse_over = formation_rect.collidepoint(mouse_pos)
+
+                # Check if this is the currently selected formation
+                is_selected = (current_formation is not None and formation_id == current_formation)
 
                 # Draw formation button (simpler, without description)
                 bg_color = Colors.SURFACE
@@ -898,8 +917,12 @@ class UIManager:
                 pygame.draw.rect(
                     screen, bg_color, formation_rect, width=0, border_radius=10
                 )
+                
+                # Draw border: colored if selected, primary otherwise
+                border_color = Colors.ACCENT if is_selected else Colors.PRIMARY
+                border_width = 3 if is_selected else 2
                 pygame.draw.rect(
-                    screen, Colors.PRIMARY, formation_rect, width=2, border_radius=10
+                    screen, border_color, formation_rect, width=border_width, border_radius=10
                 )
 
                 # Draw formation name (no description)
@@ -908,35 +931,38 @@ class UIManager:
                 name_rect = name_surf.get_rect(center=formation_rect.center)
                 screen.blit(name_surf, name_rect)
 
-                # Draw formation symbol/icon
-                formation_icons = {
+                # Draw formation symbol/icon - moved downwards by 15 pixels
+                formation_icons_map = {
                     "Scouting": "scouting_symbol",
                     "Close Follow": "close_follow_symbol",
                     "Radar Follow": "radar_follow_symbol",
                 }
-                icon_name = formation_icons.get(formation_name, "formations")
+                icon_name = formation_icons_map.get(formation_name, "formations")
+                
+                # Position for symbol - moved below the text
+                symbol_center = pygame.Vector2(formation_rect.centerx, formation_rect.centery + 15)
 
                 # Draw simple symbols for each formation
                 if icon_name == "scouting_symbol":
                     # Draw triangle for Scouting
                     points = [
-                        formation_rect.center + pygame.Vector2(0, -10),
-                        formation_rect.center + pygame.Vector2(-8, 8),
-                        formation_rect.center + pygame.Vector2(8, 8),
+                        symbol_center + pygame.Vector2(0, -10),
+                        symbol_center + pygame.Vector2(-8, 8),
+                        symbol_center + pygame.Vector2(8, 8),
                     ]
                     pygame.draw.polygon(screen, (255, 200, 100), points)
                 elif icon_name == "close_follow_symbol":
                     # Draw circle for Close Follow
                     pygame.draw.circle(
-                        screen, (100, 200, 255), formation_rect.center, 8, 2
+                        screen, (100, 200, 255), symbol_center, 8, 2
                     )
                 elif icon_name == "radar_follow_symbol":
                     # Draw expanding circles for Radar Follow
                     pygame.draw.circle(
-                        screen, (200, 100, 200), formation_rect.center, 6
+                        screen, (200, 100, 200), symbol_center, 6
                     )
                     pygame.draw.circle(
-                        screen, (200, 100, 200), formation_rect.center, 10, 1
+                        screen, (200, 100, 200), symbol_center, 10, 1
                     )
 
         return screen

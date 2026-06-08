@@ -107,10 +107,11 @@ class Wingman(CircleShape):
     def generate_scout_points(self, count=4):
         """Generate unique patrol points for Scouting formation based on wingman_id"""
         import random
+
         # Use wingman_id to seed the random generator for unique points per wingman
         # This ensures each scouting wingman has different patrol routes
         random.seed(self.wingman_id * 1000 + 42)  # Unique seed per wingman
-        
+
         self.scout_points = []
         for i in range(count):
             # Offset the angle based on wingman_id so each wingman has different starting angle
@@ -121,7 +122,7 @@ class Wingman(CircleShape):
             self.scout_points.append(offset)
         self.scout_point_index = 0
         self.scout_timer = random.uniform(1, 3)  # Change target every 2-5 seconds
-        
+
         # Reset random seed to not affect other parts of the game
         random.seed()
 
@@ -168,14 +169,14 @@ class Wingman(CircleShape):
         max_wingman_distance = max_player_distance * 1.5  # Can track up to 1.5x
 
         asteroids = self.get_asteroids()
-        
+
         # Get list of asteroids already targeted by other wingmen (if available)
         targeted_asteroids = set()
-        if hasattr(self, 'wingmen_weapon') and self.wingmen_weapon:
+        if hasattr(self, "wingmen_weapon") and self.wingmen_weapon:
             for other_wingman in self.wingmen_weapon.wingmen_list:
                 if other_wingman != self and other_wingman.target:
                     targeted_asteroids.add(other_wingman.target)
-        
+
         for asteroid in asteroids:
             if hasattr(asteroid, "alive") and not asteroid.alive():
                 continue
@@ -199,7 +200,9 @@ class Wingman(CircleShape):
 
             # Apply wingman-specific targeting preferences based on wingman_id
             # Each wingman has a slightly different preferred distance range
-            preference_multiplier = 1.0 + (self.wingman_id * 0.1)  # Wingman 0 prefers closer, 1 prefers slightly further, etc.
+            preference_multiplier = 1.0 + (
+                self.wingman_id * 0.1
+            )  # Wingman 0 prefers closer, 1 prefers slightly further, etc.
             adjusted_distance = wingman_to_asteroid * preference_multiplier
 
             if adjusted_distance < closest_dist:
@@ -735,7 +738,7 @@ class Wingmen(Weapon):
         # Update all wingmen with new fire cooldown
         for w in self.wingmen_list:
             w.fire_cooldown = max(
-                0.1,
+                0.05,
                 constants.WINGMEN_BASE_FIRE_COOLDOWN
                 - (
                     constants.WINGMEN_FIRE_RATE_INCREMENT * self.fire_rate_upgrade_level

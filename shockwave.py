@@ -96,27 +96,10 @@ class ShockwaveEffect(Shot):
                     self.line_color[2],
                     alpha,
                 )
-                line_length = start.distance_to(end)
-                if line_length > 0:
-                    s = pygame.Surface(
-                        (int(line_length) + 2, self.line_width + 2), pygame.SRCALPHA
-                    )
-                    pygame.draw.line(
-                        s,
-                        color_with_alpha,
-                        (0, self.line_width // 2),
-                        (int(line_length), self.line_width // 2),
-                        self.line_width,
-                    )
-                    angle = math.degrees(math.atan2(end.y - start.y, end.x - start.x))
-                    rotated = pygame.transform.rotate(s, -angle)
-                    screen.blit(
-                        rotated,
-                        (
-                            start.x - rotated.get_width() // 2,
-                            start.y - rotated.get_height() // 2,
-                        ),
-                    )
+                pygame.draw.line(screen, color_with_alpha, start, end, self.line_width)
+
+        # Draw the main central line (more opaque, constant)
+        pygame.draw.line(screen, self.line_color, self.start_pos, self.end_pos, self.line_width + 1)
 
     def is_active(self):
         return self.age < self.lifetime

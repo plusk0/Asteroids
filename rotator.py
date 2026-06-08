@@ -3,6 +3,7 @@ from circleshape import *
 from shot import Shot
 from weapon import Weapon
 
+
 class RotatorShot(Shot):
     def __init__(self, x, y, radius, level, rotator):
         super().__init__(x, y, radius)
@@ -14,7 +15,9 @@ class RotatorShot(Shot):
 
     def kill(self):
         self.active = False
-        self.disabled_until = pygame.time.get_ticks() + (2000 * max(0.2, 1 - (self.level * 0.1)))
+        self.disabled_until = pygame.time.get_ticks() + (
+            2000 * max(0.2, 1 - (self.level * 0.1))
+        )
 
     def is_active(self):
         if self.active:
@@ -24,13 +27,14 @@ class RotatorShot(Shot):
             self.piercing = self.rotator.piercing
             return True
         return False
-    
+
     def draw(self, screen):
         if self.is_active():
             pygame.draw.circle(screen, [210, 255, 255], self.position, self.radius)
         else:
             # Draw disabled state
             pygame.draw.circle(screen, [50, 50, 50], self.position, self.radius)
+
 
 class Rotator(Weapon):
     def __init__(self, player):
@@ -52,20 +56,20 @@ class Rotator(Weapon):
         self.level += 1
 
         shot = RotatorShot(
-            self.player.position.x, 
-            self.player.position.y, 
-            self.radius, 
-            self.level, 
-            self
+            self.player.position.x,
+            self.player.position.y,
+            self.radius,
+            self.level,
+            self,
         )
         self.shots.append(shot)
-        
+
         # Add to sprite groups if containers are set
-        if containers and hasattr(shot, 'add'):
+        if containers and hasattr(shot, "add"):
             shot.add(containers)
-        elif hasattr(Shot, 'containers') and Shot.containers:
+        elif hasattr(Shot, "containers") and Shot.containers:
             shot.add(Shot.containers)
-        
+
         if self.count > 10:
             self.count = 10
 
@@ -79,15 +83,21 @@ class Rotator(Weapon):
     def update(self, player, screen, dt):
         if not self.shots:
             return
-        
-        speed = constants.ROTATOR_SPEED * (self.level * 0.33)
+
+        speed = min(
+            constants.ROTATOR_SPEED * 2, constants.ROTATOR_SPEED * (self.level * 0.33)
+        )
         self.rotate(dt * speed)
         self.position = player.position.copy()
-        
+
         for i, shot in enumerate(self.shots):
             angle = self.rotation + (360 * i / len(self.shots))
-            shot.position = player.position + pygame.Vector2(0, -self.radius).rotate(angle) * self.distance
-            
+            shot.position = (
+                player.position
+                + pygame.Vector2(0, -self.radius).rotate(angle) * self.distance
+            )
+
             # Don't draw here - let the sprite group handle it
             # The shots are already in the drawable group
             pass
+

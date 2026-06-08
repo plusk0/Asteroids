@@ -190,7 +190,7 @@ class Game:
                         if asteroid.collide(shot):
                             if asteroid.take_damage(1):
                                 player.gain_score()
-                                if hasattr(shot, "laser"):
+                                if hasattr(shot, "laser") and hasattr(weapon_manager, 'laser') and hasattr(weapon_manager.laser, 'apply_aftereffect'):
                                     weapon_manager.laser.apply_aftereffect(shot)
 
                             if shot.piercing > 0:
@@ -253,16 +253,75 @@ class Game:
 
                 if player.level > level:
                     level = player.level
-                    result = gameMenu.show_upgrade_menu(self, player)
-                    options = result[0]
-                    rects = result[1]
-                    formations = result[2] if len(result) > 2 else []
-                    selected_upgrade = await gameMenu.handle_upgrade_selection(
-                        rects, options, player, formations
-                    )
-                    if selected_upgrade:
-                        asteroid_field.increase_difficulty(level, difficulty)
-                        asteroid_field.set_player_level(level)
+                    # Loop until an upgrade is selected (formations can be selected without closing menu)
+                    menu_open = True
+                    while menu_open:
+                        result = gameMenu.show_upgrade_menu(self, player)
+                        options = result[0]
+                        rects = result[1]
+                        formations = result[2] if len(result) > 2 else []
+                        selection = await gameMenu.handle_upgrade_selection(
+                            rects, options, player, formations
+                        )
+                        
+                        if selection == "upgrade":
+                            menu_open = False
+                            # Add a 0.5 second delay after selecting upgrade to give player time to adapt
+                            # Use a simple sleep without updating game logic to avoid time jump
+                            start_time = pygame.time.get_ticks()
+                            delay = 500  # 0.5 seconds in milliseconds
+                            while pygame.time.get_ticks() - start_time < delay:
+                                for event in pygame.event.get():
+                                    if event.type == pygame.QUIT:
+                                        return
+                                    elif event.type == pygame.VIDEORESIZE:
+                                        self.actual_screen = pygame.display.set_mode(
+                                            event.size, pygame.RESIZABLE
+                                        )
+                                        self.screen = self.actual_screen.copy()
+                                        self.calculate_scaling()
+                                # Just render the current state without updating game logic
+                                self.screen.fill(0)
+                                self.actual_screen.fill(0)
+                                
+                                gameplay_w, gameplay_h = self.gameplay_size
+                                offset = self.screen_offset
+                                
+                                gameplay_screen = pygame.Surface(
+                                    (gameplay_w, gameplay_h)
+                                )
+                                gameplay_screen.fill(0)
+                                
+                                player.screen = gameplay_screen
+                                
+                                for entity in drawable:
+                                    entity.draw(gameplay_screen)
+                                
+                                weapon_manager.update(player, gameplay_screen, dt)
+                                
+                                for weapon in weapon_manager.weapons:
+                                    weapon.asteroids = asteroids
+                                    weapon.game = self
+                                
+                                scaled_size = (int(gameplay_w * self.screen_scale), int(gameplay_h * self.screen_scale))
+                                scaled_gameplay = pygame.transform.scale(gameplay_screen, scaled_size)
+                                self.actual_screen.blit(scaled_gameplay, offset)
+                                
+                                gameMenu.update(self.actual_screen, player)
+                                
+                                pygame.display.flip()
+                                # Don't update dt or game state during delay
+                                Clock.tick(120)
+                                await asyncio.sleep(0.001)
+                            
+                            asteroid_field.increase_difficulty(level, difficulty)
+                            asteroid_field.set_player_level(level)
+                        elif selection == "formation":
+                            # Formation was selected, keep menu open and redraw
+                            menu_open = True
+                        elif selection == False:
+                            # Menu was cancelled
+                            menu_open = False
                     Clock.tick()
 
                 # (scaled_screen, (offset_x, offset_y))

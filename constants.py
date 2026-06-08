@@ -3,8 +3,6 @@ SCREEN_HEIGHT = 1080
 SCALE = 1
 ZOOM_SCALE = 1
 
-# Virtual gameplay area - this defines the consistent gameplay space
-# All game logic should use these dimensions
 GAMEPLAY_WIDTH = 1920
 GAMEPLAY_HEIGHT = 1080
 
@@ -13,18 +11,17 @@ PLAYER_TURN_SPEED = 300
 PLAYER_SPEED = 300
 PLAYER_HEALTH = 3
 PLAYER_SHIELD = 0
-SHIELD_DURATION = 5000  # milliseconds
+SHIELD_DURATION = 5000
 
 PLAYER_SHOOT_SPEED = 500
 PLAYER_SHOOT_COOLDOWN = 1
 PLAYER_SHOT_NO = 1
 PLAYER_SHOT_PIERCE = 0
 
-# Difficulty settings
 DIFFICULTY_SPAWN_MULTIPLIERS = {
     0: 0.9,
-    1: 1.75,
-    2: 2.5,
+    1: 1.5,
+    2: 2.2,
 }
 
 DIFFICULTY_SPEED_MULTIPLIERS = {
@@ -34,12 +31,12 @@ DIFFICULTY_SPEED_MULTIPLIERS = {
 }
 
 DIFFICULTY_SIZE_MULTIPLIERS = {
-    0: 0.8,  # Easy
-    1: 1.2,
-    2: 1.5,
+    0: 0.8,
+    1: 1.1,
+    2: 1.2,
 }
 
-# Asteroid types/tiers
+
 ASTEROID_TIER_COLORS = {
     1: (200, 200, 200),
     2: (255, 200, 100),
@@ -48,7 +45,7 @@ ASTEROID_TIER_COLORS = {
 
 ASTEROID_TIER_HEALTH_MULTIPLIERS = {1: 1, 2: 2, 3: 4}
 
-# Magnetizer resistance multipliers (higher tier = more resistant)
+
 ASTEROID_TIER_MAGNETIZER_RESISTANCE = {
     1: 1.0,
     2: 0.5,
@@ -57,10 +54,10 @@ ASTEROID_TIER_MAGNETIZER_RESISTANCE = {
 
 ASTEROID_MIN_RADIUS = 30
 ASTEROID_KINDS = 4
-ASTEROID_SPAWN_RATE = 1  # seconds
+ASTEROID_SPAWN_RATE = 1
 ASTEROID_MAX_RADIUS = ASTEROID_MIN_RADIUS * ASTEROID_KINDS
 
-# Weapons
+
 WEAPONS = ["Rotator", "EMP", "Laser", "Wingmen", "Magnetizer"]
 UPGRADES = [
     "Multi Shot",
@@ -185,7 +182,7 @@ UPGRADE_RULES = {
     "Wingman Intelligence": {
         "requires": {"type": "weapon_level", "weapon": "Wingmen", "level": 3},
         "locks": [],
-        "one_time": True,
+        "max_level": 1,  # Replaces one_time: True
     },
     "Shield Regeneration": {
         "requires": {
@@ -195,7 +192,7 @@ UPGRADE_RULES = {
             "comparison": ">=",
         },
         "locks": ["Shield"],
-        "one_time": True,
+        "max_level": 1,  # Replaces one_time: True
     },
     "Shield Regen Cooldown": {
         "requires": {"type": "upgrade_owned", "upgrade": "Shield Regeneration"},
@@ -211,7 +208,7 @@ WINGMEN_BASE_SPEED = 100  # Starting speed
 WINGMEN_FIRE_COOLDOWN = 1.0  # seconds
 WINGMEN_BASE_FIRE_COOLDOWN = 1.0  # Starting fire cooldown
 WINGMEN_MAX_RANGE = 300
-WINGMEN_SHOT_SPEED = 250
+WINGMEN_SHOT_SPEED = 400
 WINGMEN_RADIUS = 50
 
 # Wingman upgrade increments

@@ -8,17 +8,18 @@ class Shot(CircleShape):
         self.piercing = 0
 
     def draw(self, screen):
-        pygame.draw.circle(screen, [210,255,255], self.position, self.radius)
-    
+        pygame.draw.circle(screen, [180, 255, 255], self.position, self.radius)
+
     def is_active(self):
         """Check if shot is active - override in subclasses"""
         return True
-    
+
     def update(self, dt):
         self.position += dt * self.velocity
-        if (self.position.y < -constants.GAMEPLAY_HEIGHT or 
-        self.position.y > constants.GAMEPLAY_HEIGHT or 
-        self.position.x < -constants.GAMEPLAY_WIDTH or 
-        self.position.x > constants.GAMEPLAY_WIDTH):
+        if (
+            self.position.y < -constants.GAMEPLAY_HEIGHT
+            or self.position.y > constants.GAMEPLAY_HEIGHT
+            or self.position.x < -constants.GAMEPLAY_WIDTH
+            or self.position.x > constants.GAMEPLAY_WIDTH
+        ):
             self.kill()
-
